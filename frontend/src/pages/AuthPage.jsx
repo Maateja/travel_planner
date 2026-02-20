@@ -339,7 +339,6 @@ function AuthPage({ isLogin = false }) {
                                 console.log('Login Failed');
                                 setError('Google Login Failed');
                             }}
-                            useOneTap
                             use_fedcm_for_prompt={true}
                             shape="pill"
                             theme="filled_blue"

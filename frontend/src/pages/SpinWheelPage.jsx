@@ -477,7 +477,7 @@ const SpinWheelPage = () => {
                                 animate={{ opacity: 1, y: 0 }}
                             >
                                 <div className="plan-header">
-                                    <h3>Custom Curated Roadmap: {result.name}</h3>
+                                    <h3>Custom Curated Roadmap: {result?.name || ''}</h3>
                                     <p>Feel free to edit titles, descriptions, and activities to match your style.</p>
                                 </div>
 
