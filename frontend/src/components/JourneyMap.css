@@ -1,0 +1,56 @@
+.journey-container {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Custom Scrollbar for Card Activities */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(20, 184, 166, 0.2);
+}
+
+/* Glass and Depth Effects */
+.card-glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+}
+
+/* Animation for the pipeline circles */
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4); }
+  70% { box-shadow: 0 0 0 15px rgba(20, 184, 166, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+}
+
+.pipeline-active {
+  animation: ring-pulse 2s infinite;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 640px) {
+  .journey-map-card {
+    width: 90% !important;
+  }
+}
+
+.animate-bounce-slow {
+  animation: bounce 3s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}

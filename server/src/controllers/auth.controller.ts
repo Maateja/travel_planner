@@ -1,0 +1,223 @@
+import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+import User from '../models/User.js';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "No account found with this email." });
+        }
+
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+        await user.save();
+
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+
+        const emailUser = (process.env.EMAIL_USER || "").trim();
+        const emailPass = (process.env.EMAIL_PASS || "").trim();
+
+        console.log(`[Auth] Attempting SMTP send with ${emailUser}`);
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: emailUser,
+                pass: emailPass
+            }
+        });
+
+        const mailOptions = {
+            from: `"BAGSUP" <${emailUser}>`,
+            to: user.email,
+            subject: 'Reset Your Password – BAGSUP',
+            text: `Click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 15 minutes.`
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({ message: "Recovery link has been sent to your email." });
+    } catch (err: any) {
+        console.error("Forgot Password Error:", err);
+        res.status(500).json({ error: "Failed to send recovery email. " + err.message });
+    }
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+    try {
+        const token = req.params.token as string;
+        const { password } = req.body;
+
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired reset link." });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.json({ message: "Your password has been reset successfully." });
+    } catch (err: any) {
+        console.error("Reset Password Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const register = async (req: Request, res: Response) => {
+    try {
+        const { username, email, password } = req.body;
+
+        // Check if user exists
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) return res.status(400).json({ error: 'User already exists with this email or username' });
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create user
+        const newUser = new User({ username, email, password: hashedPassword });
+        await newUser.save();
+
+        const token = jwt.sign({ id: newUser._id, username: newUser.username }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
+
+        res.status(201).json({ 
+            message: 'User registered successfully',
+            access: token,
+            user: {
+                id: newUser._id,
+                username: newUser.username,
+                email: newUser.email
+            }
+        });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const login = async (req: Request, res: Response) => {
+    try {
+        const { username, password } = req.body;
+
+        const user = await User.findOne({ 
+            $or: [{ email: username.toLowerCase() }, { username: username.toLowerCase() }] 
+        });
+        
+        if (!user || !user.password) return res.status(401).json({ error: 'Invalid credentials' });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+        const token = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
+
+        res.json({
+            access: token,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+                full_name: user.full_name,
+                age: user.age,
+                gender: user.gender,
+                dob: user.dob
+            }
+        });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const googleLogin = async (req: Request, res: Response) => {
+    try {
+        const { token } = req.body;
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID as string,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) return res.status(400).json({ error: 'Invalid Google token' });
+
+        const { email, sub: googleId, name, picture } = payload;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            user = new User({
+                username: name || email.split('@')[0],
+                email,
+                googleId,
+                avatar: picture,
+                full_name: name
+            });
+            await user.save();
+        } else if (!user.googleId) {
+            user.googleId = googleId;
+            await user.save();
+        }
+
+        const jwtToken = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
+
+        res.json({
+            access: jwtToken,
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                avatar: user.avatar,
+                full_name: user.full_name
+            }
+        });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const getProfile = async (req: any, res: Response) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const updateProfile = async (req: any, res: Response) => {
+    try {
+        const { full_name, age, gender, dob } = req.body;
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        if (full_name !== undefined) user.full_name = full_name;
+        if (age !== undefined) user.age = Number(age);
+        if (gender !== undefined) user.gender = gender;
+        if (dob !== undefined) user.dob = dob;
+        
+        await user.save();
+        res.json(user);
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
