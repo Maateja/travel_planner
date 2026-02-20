@@ -1,6 +1,11 @@
 import axios from "axios";
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "/api/";
+let apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "/api/";
+
+// Automatically append /api/ if the user forgot to add it in Vercel settings
+if (apiBaseUrl && !apiBaseUrl.endsWith('/api') && !apiBaseUrl.endsWith('/api/')) {
+  apiBaseUrl = apiBaseUrl.endsWith('/') ? `${apiBaseUrl}api/` : `${apiBaseUrl}/api/`;
+}
 
 const api = axios.create({
   baseURL: apiBaseUrl.endsWith('/') ? apiBaseUrl : `${apiBaseUrl}/`,
