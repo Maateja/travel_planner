@@ -40,17 +40,17 @@ export const chatAssistant = async (req: AuthRequest, res: Response) => {
         }
 
         // 1. Fetch existing history from DB (if logged in and no frontend history provided)
-        let history = [];
-        let chatRecord = null;
+        let history: any[] = [];
+        let chatRecord: any = null;
         
         if (frontendHistory && Array.isArray(frontendHistory)) {
-            history = frontendHistory.map(m => ({
+            history = frontendHistory.map((m: any) => ({
                 role: m.role,
                 parts: [{ text: m.content }]
             }));
         } else if (userId) {
             chatRecord = await ChatHistory.findOne({ userId });
-            history = chatRecord ? chatRecord.messages.map(m => ({
+            history = chatRecord ? chatRecord.messages.map((m: any) => ({
                 role: m.role,
                 parts: [{ text: m.content }]
             })) : [];
@@ -76,7 +76,7 @@ export const chatAssistant = async (req: AuthRequest, res: Response) => {
 
 Recent conversation:\n`;
                 
-                history.slice(-5).forEach(h => {
+                history.slice(-5).forEach((h: any) => {
                     promptSnippet += `${h.role === 'user' ? 'User' : 'Assistant'}: ${h.parts?.[0]?.text || ''}\n`;
                 });
 
