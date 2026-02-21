@@ -25,7 +25,10 @@ export const forgotPassword = async (req, res) => {
             auth: {
                 user: emailUser,
                 pass: emailPass
-            }
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 10000
         });
         const mailOptions = {
             from: `"BAGSUP" <${emailUser}>`,
@@ -95,7 +98,10 @@ export const register = async (req, res) => {
         if (emailUser && emailPass) {
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
-                auth: { user: emailUser, pass: emailPass }
+                auth: { user: emailUser, pass: emailPass },
+                connectionTimeout: 10000,
+                greetingTimeout: 10000,
+                socketTimeout: 10000
             });
             const mailOptions = {
                 from: `"BAGSUP" <${emailUser}>`,
@@ -103,7 +109,14 @@ export const register = async (req, res) => {
                 subject: 'Verify Your Email – BAGSUP',
                 text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
             };
-            await transporter.sendMail(mailOptions);
+            try {
+                await transporter.sendMail(mailOptions);
+            }
+            catch (err) {
+                console.error("Verification email failed:", err);
+                await User.findByIdAndDelete(newUser._id);
+                return res.status(500).json({ error: "Could not send verification email. Please try again later. " + err.message });
+            }
         }
         else {
             console.warn("Email credentials not configured. Verification email not sent.");
