@@ -3,6 +3,10 @@ import Trip from '../models/Trip.js';
 import Itinerary from '../models/Itinerary.js';
 const getGenAI = () => {
     const key = (process.env.GEMINI_API_KEY || '').trim();
+    if (!key)
+        console.error("❌ GEMINI_API_KEY is missing in .env");
+    else
+        console.log(`[AI] Initializing with key length: ${key.length}`);
     return new GoogleGenerativeAI(key);
 };
 export const generateItinerary = async (req, res) => {
@@ -15,10 +19,16 @@ export const generateItinerary = async (req, res) => {
             return res.status(400).json({ success: false, error: 'Invalid dates' });
         const prompt = `
         Act as an expert travel planner for Indian students.
-        Generate a ${days}-day budget travel itinerary for a student visiting ${destination} with a total budget of ₹${budget} (INR).
+        
+        CRITICAL VALIDATION:
+        First, check if "${destination}" is a real, recognizable city or travel destination. 
+        - If it is random letters (like "fgyhijo", "bgojpi"), nonsense, or a non-existent place, you MUST return a JSON with "success": false and an "error": "Invalid destination. Please enter a real city or place."
+        - Do NOT try to guess or hallucinate a near match if the input is clearly gibberish.
+
+        If the destination is VALID, generate a ${days}-day budget travel itinerary for a student visiting ${destination} with a total budget of ₹${budget} (INR).
         The student is interested in: ${interests.join(', ')}.
         
-        Requirements:
+        Requirements for Valid Destinations:
         1. Suggest realistic, low-cost travel options (trains/buses) and affordable food/stays in India.
         2. All costs must be in INR (₹).
         3. Structure the response strictly as valid JSON.
@@ -29,11 +39,12 @@ export const generateItinerary = async (req, res) => {
            - Day 3: Theme-based exploration (e.g., Food tour, History walk, or Nature).
            - Subsequent days: Nearby excursions, shopping, or relaxation.
         6. Divide the total budget of ₹${budget} logically across ${days} days.
-        7. Response MUST be a JSON object with a "success" boolean and an "itinerary" array of daily objects.
+        7. Response MUST be a JSON object with a "success" boolean.
         
-        Example JSON Structure:
+        Example JSON Structure (Valid):
         {
           "success": true,
+          "destination": "${destination}",
           "itinerary": [
             {
               "day": 1,
@@ -47,10 +58,26 @@ export const generateItinerary = async (req, res) => {
             }
           ]
         }
+
+        Example JSON Structure (Invalid Destination):
+        {
+          "success": false,
+          "error": "Invalid destination. Please enter a real city or place."
+        }
         `;
         const genAI = getGenAI();
-        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
-        const result = await model.generateContent(prompt);
+        let result;
+        try {
+            // Priority: Fast layout, high rate limit threshold
+            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+            result = await model.generateContent(prompt);
+        }
+        catch (error) {
+            console.warn("[Itinerary] Primary model failed, trying fallback...", error.message);
+            // Fallback
+            const modelFallback = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+            result = await modelFallback.generateContent(prompt);
+        }
         const response = await result.response;
         const text = response.text();
         console.log('--- RAW AI RESPONSE ---');
@@ -79,6 +106,12 @@ export const generateItinerary = async (req, res) => {
             const fixedJson = jsonMatch[0].replace(/,\s*([\]}])/g, '$1');
             data = JSON.parse(fixedJson);
         }
+        if (data.success === false) {
+            return res.status(400).json({
+                success: false,
+                error: data.error || 'Invalid destination. Please enter a real city or place.'
+            });
+        }
         data.destination = destination;
         // If trip_id is provided, save it automatically
         if (trip_id) {
@@ -100,22 +133,10 @@ export const generateItinerary = async (req, res) => {
     catch (err) {
         console.error('AI Gen Error:', err);
         let errorMessage = err.message || 'An error occurred during itinerary generation.';
-        // If it's a 404 or specifically mentions model not found, it might be an invalid model name
-        if (errorMessage.includes('404') || errorMessage.includes('not found')) {
-            errorMessage = 'The AI model is currently unavailable or the model name is incorrect. Please contact support.';
-        }
-        // Handle 503 High Demand
-        else if (errorMessage.includes('503') || errorMessage.includes('Service Unavailable') || errorMessage.includes('high demand')) {
-            errorMessage = 'The AI service is currently overwhelmed by high demand. Please wait 10-20 seconds and try generating again.';
-        }
-        // Genuine API Key issues
-        else if (errorMessage.includes('API_KEY_INVALID') || errorMessage.includes('invalid') && errorMessage.includes('API key')) {
-            errorMessage = 'Invalid Gemini API Key. Please update server/.env';
-        }
-        // Quota issues
-        else if (errorMessage.includes('429') || errorMessage.includes('quota')) {
-            errorMessage = 'API Quota exceeded. Please try again in a few minutes.';
-        }
+        if (errorMessage.includes("429"))
+            errorMessage = "The AI is currently busy. Please wait a few seconds and try again.";
+        if (errorMessage.includes("Quota"))
+            errorMessage = "AI limit reached. Please try again in 1 minute.";
         res.status(500).json({
             success: false,
             error: errorMessage

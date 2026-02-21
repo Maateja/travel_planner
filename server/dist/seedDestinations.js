@@ -2,115 +2,126 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Destination from './models/Destination.js';
 dotenv.config();
-const states = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-    "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
-    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
-    "Uttar Pradesh", "Uttarakhand", "West Bengal"
-];
+const categories = ['Adventure', 'Nature', 'Spiritual', 'Beach', 'Heritage', 'Hill Station', 'City', 'Wildlife'];
 const destinationTemplates = {
-    "Adventure": { min: 5000, max: 15000, days: 3, desc: "An adrenaline-pumping adventure await you here with Various activities." },
-    "Nature": { min: 3000, max: 10000, days: 2, desc: "Immerse yourself in the serene beauty of nature and lush landscapes." },
-    "Spiritual": { min: 2000, max: 7000, days: 2, desc: "Find peace and spiritual awakening in this sacred destination." },
-    "Beach": { min: 4000, max: 12000, days: 3, desc: "Relax on the sandy shores and enjoy the rhythmic sound of waves." },
-    "Heritage": { min: 2500, max: 8000, days: 2, desc: "Explore the rich history and architectural marvels of the past." },
-    "Hill Station": { min: 4500, max: 13000, days: 3, desc: "Escape to the cool heights and breathtaking mountain views." },
-    "City": { min: 3000, max: 15000, days: 2, desc: "Experience the vibrant urban life, shopping, and modern attractions." },
-    "Wildlife": { min: 6000, max: 18000, days: 3, desc: "Discover diverse flora and fauna in their natural habitat." }
+    'Adventure': { desc: 'Thrilling activities and outdoor sports.', min: 3000, max: 8000, days: 3 },
+    'Nature': { desc: 'Beautiful landscapes and natural wonders.', min: 2000, max: 6000, days: 2 },
+    'Spiritual': { desc: 'Peaceful religious and spiritual sites.', min: 1000, max: 4000, days: 2 },
+    'Beach': { desc: 'Sun, sand, and relaxing waves.', min: 4000, max: 10000, days: 4 },
+    'Heritage': { desc: 'Ancient monuments and cultural history.', min: 1500, max: 5000, days: 2 },
+    'Hill Station': { desc: 'Cool climates and mountain views.', min: 3500, max: 9000, days: 3 },
+    'City': { desc: 'Vibrant urban culture and shopping.', min: 2500, max: 7000, days: 2 },
+    'Wildlife': { desc: 'Amazing animals and forest safaris.', min: 5000, max: 12000, days: 3 }
 };
-const categories = Object.keys(destinationTemplates);
-// Helper to generate coordinates roughly within India (8N-37N, 68E-97E)
-// We'll use more specific bounds per state if possible, but for now, we'll use state-centered randoms.
+const REAL_COORDS = {
+    // Andhra Pradesh
+    "Tirupati": [13.6288, 79.4192],
+    "Visakhapatnam": [17.6868, 83.2185],
+    "Vijayawada": [16.5062, 80.6480],
+    "Araku Valley": [18.3273, 82.8772],
+    "Horsley Hills": [13.65, 78.40],
+    "Madanapalle": [13.5512, 78.5020],
+    "Kurnool": [15.8281, 78.0373],
+    "Nellore": [14.4426, 79.9865],
+    "Vizianagaram": [18.1124, 83.3956],
+    "Kadapa": [14.4673, 78.8242],
+    "Gandikota": [14.8142, 78.2861],
+    "Lepakshi": [13.8044, 77.6080],
+    "Anantapur": [14.6819, 77.6006],
+    // Kerala
+    "Trivandrum": [8.5241, 76.9366],
+    "Varkala": [8.7302, 76.7056],
+    "Kovalam": [8.4020, 76.9784],
+    "Ponmudi": [8.7597, 77.1147],
+    "Alleppey": [9.4981, 76.3388],
+    "Munnar": [10.0889, 77.0595],
+    "Wayanad": [11.6854, 76.1320],
+    "Thekkady": [9.6031, 77.1615],
+    "Kochi": [9.9312, 76.2673],
+    // Telangana
+    "Hyderabad": [17.3850, 78.4867],
+    "Warangal": [17.9689, 79.5941],
+    "Nagarjunasagar": [16.5815, 79.3130],
+    "Bhadrachalam": [17.6687, 80.8935],
+    "Ananthagiri Hills": [17.3106, 77.8631],
+    // Karnataka
+    "Bangalore": [12.9716, 77.5946],
+    "Coorg": [12.3375, 75.8069],
+    "Mysore": [12.2958, 76.6394],
+    "Hampi": [15.3350, 76.4600],
+    "Gokarna": [14.5479, 74.3188],
+    "Nandi Hills": [13.3702, 77.6835],
+    // Tamil Nadu
+    "Chennai": [13.0827, 80.2707],
+    "Ooty": [11.4100, 76.6950],
+    "Kodaikanal": [10.2381, 77.4892],
+    "Madurai": [9.9252, 78.1198],
+    "Kanyakumari": [8.0883, 77.5385],
+    // Goa & Others
+    "Panaji": [15.4909, 73.8278],
+    "Delhi": [28.6139, 77.2090],
+    "Jaipur": [26.9124, 75.7873],
+    "Mumbai": [19.0760, 72.8777]
+};
+const states = [
+    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", "Haryana",
+    "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+    "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal", "Delhi"
+];
 const stateCenters = {
-    "Andhra Pradesh": [15.91, 79.74],
-    "Arunachal Pradesh": [28.21, 94.72],
-    "Assam": [26.20, 92.93],
-    "Bihar": [25.09, 85.31],
-    "Chhattisgarh": [21.27, 81.86],
-    "Goa": [15.29, 74.12],
-    "Gujarat": [22.25, 71.19],
-    "Haryana": [29.05, 76.08],
-    "Himachal Pradesh": [31.10, 77.17],
-    "Jharkhand": [23.61, 85.27],
-    "Karnataka": [15.31, 75.71],
+    "Andhra Pradesh": [14.50, 78.50],
     "Kerala": [10.85, 76.27],
-    "Madhya Pradesh": [23.47, 77.94],
-    "Maharashtra": [19.75, 75.71],
-    "Manipur": [24.66, 93.90],
-    "Meghalaya": [25.46, 91.36],
-    "Mizoram": [23.16, 92.93],
-    "Nagaland": [26.15, 94.56],
-    "Odisha": [20.95, 85.09],
-    "Punjab": [31.14, 75.34],
-    "Rajasthan": [27.02, 74.21],
-    "Sikkim": [27.53, 88.51],
+    "Karnataka": [15.31, 75.71],
     "Tamil Nadu": [11.12, 78.65],
-    "Telangana": [18.11, 79.01],
-    "Tripura": [23.94, 91.98],
-    "Uttar Pradesh": [26.84, 80.94],
-    "Uttarakhand": [30.06, 79.01],
-    "West Bengal": [22.98, 87.85]
+    "Telangana": [17.38, 78.48]
 };
 const realDestinations = {
-    "Tamil Nadu": ["Ooty", "Kodaikanal", "Madurai", "Rameswaram", "Yercaud", "Kanyakumari", "Mahabalipuram", "Chennai", "Coimbatore", "Tiruchirappalli", "Thanjavur", "Vellore", "Kanchipuram", "Nagapattinam", "Coonoor", "Tuticorin", "Tirunelveli", "Salem", "Dharmapuri", "Theni"],
-    "Karnataka": ["Coorg", "Mysore", "Hampi", "Gokarna", "Chikmagalur", "Bangalore", "Badami", "Shimoga", "Udupi", "Mangalore", "Belur", "Halebidu", "Bijapur", "Karwar", "Nandi Hills", "Bandipur", "Jog Falls", "Kabini", "Dandeli", "Agumbe"],
-    "Maharashtra": ["Mumbai", "Pune", "Mahabaleshwar", "Lonavala", "Ajanta Caves", "Ellora Caves", "Shirdi", "Nashik", "Nagpur", "Aurangabad", "Khandala", "Panchgani", "Alibaug", "Matheran", "Tarkarli", "Lavasa", "Ratnagiri", "Kolhapur", "Bhandardara", "Kashid"],
-    "Kerala": ["Munnar", "Alleppey", "Kochi", "Thekkady", "Wayanad", "Varkala", "Kovalam", "Kumarakom", "Thrissur", "Trivandrum", "Idukki", "Bekal", "Vagamon", "Poovar", "Kozhikode", "Athirappilly", "Guruvayur", "Palakkad", "Kanoor", "Silent Valley"],
-    "Rajasthan": ["Jaipur", "Udaipur", "Jodhpur", "Jaisalmer", "Pushkar", "Mount Abu", "Bikaner", "Ajmer", "Chittorgarh", "Ranthambore", "Bharatpur", "Alwar", "Bundu", "Shekhawati", "Mandawa", "Kumbhalgarh", "Nathdwara", "Kota", "Jhalawar", "Barmer"],
-    "Himachal Pradesh": ["Shimla", "Manali", "Dharamshala", "Dalhousie", "Kasol", "Kullu", "Spiti Valley", "Kaza", "Bir Billing", "Chamba", "Mcleodganj", "Palampur", "Solan", "Kufri", "Rohtang Pass", "Narkanda", "Sangla", "Kalpa", "Jibhi", "Parwanoo"],
-    "Uttarakhand": ["Rishikesh", "Haridwar", "Mussoorie", "Nainital", "Dehradun", "Auli", "Jim Corbett", "Kedarnath", "Badrinath", "Valley of Flowers", "Chopta", "Lansdowne", "Ranikhet", "Kausani", "Mukteshwar", "Binsar", "Almora", "Joshimath", "Tehri", "Munsiyari"],
-    "Goa": ["Calangute", "Baga", "Anjuna", "Panaji", "Palolem", "Colva", "Old Goa", "Vagator", "Dudhsagar Falls", "Candolim", "Agonda", "Arambol", "Morjim", "Dona Paula", "Ponda", "Margao", "Benaulim", "Majorda", "Vasco da Gama", "South Goa"],
-    "Andhra Pradesh": ["Visakhapatnam", "Tirupati", "Vijayawada", "Araku Valley", "Kurnool", "Nellore", "Kadapa", "Chittoor", "Anantapur", "Eluru", "Guntur", "Machilipatnam", "Kakinada", "Rajahmundry", "Srikakulam", "Vizianagaram", "Horsley Hills", "Lepakshi", "Amaravati", "Gandikota"],
-    "Arunachal Pradesh": ["Itanagar", "Tawang", "Ziro", "Pasighat", "Roing", "Tezu", "Bomdila", "Khonsa", "Along", "Namsai", "Dirang", "Bhalukpong", "Mechuka", "Anini", "Namdapha", "Pakhui", "Gorichen Peak", "Sela Pass", "Madhuri Lake", "Talle Valley"],
-    "Assam": ["Guwahati", "Kaziranga", "Majuli", "Silchar", "Dibrugarh", "Jorhat", "Nagaon", "Tinsukia", "Tezpur", "Bongaigaon", "Haflong", "Sivasagar", "Manas National Park", "Diphu", "Goalpara", "Karimganj", "Dhubri", "Barpeta", "Nalbari", "Mangaldai"],
-    "Bihar": ["Patna", "Gaya", "Bodh Gaya", "Nalanda", "Rajgir", "Vaishali", "Muzaffarpur", "Bhagalpur", "Darbhanga", "Purnia", "Arrah", "Begusarai", "Munger", "Sasaram", "Bihar Sharif", "Saharsa", "Katihar", "Motihari", "Siwan", "Buxar"],
-    "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar", "Jamnagar", "Junagadh", "Gandhinagar", "Somnath", "Dwarka", "Saputara", "Gir National Park", "Rann of Kutch", "Bhuj", "Porbandar", "Anand", "Mehsana", "Morbi", "Vapi", "Bharuch"],
-    "West Bengal": ["Kolkata", "Darjeeling", "Siliguri", "Digha", "Sundarbans", "Kalimpong", "Shantiniketan", "Murshidabad", "Asansol", "Durgapur", "Howrah", "Haldia", "Malda", "Jalpaiguri", "Cooch Behar", "Bankura", "Purulia", "Burdwan", "Kharagpur", "Bishnupur"]
+    "Andhra Pradesh": ["Visakhapatnam", "Tirupati", "Vijayawada", "Araku Valley", "Kurnool", "Nellore", "Kadapa", "Horsley Hills", "Lepakshi", "Gandikota", "Madanapalle"],
+    "Kerala": ["Munnar", "Alleppey", "Kochi", "Thekkady", "Wayanad", "Varkala", "Kovalam", "Trivandrum", "Ponmudi"],
+    "Karnataka": ["Coorg", "Mysore", "Hampi", "Gokarna", "Bangalore", "Halebidu", "Nandi Hills", "Kabini"],
+    "Tamil Nadu": ["Ooty", "Kodaikanal", "Madurai", "Rameswaram", "Chennai", "Mahabalipuram", "Kanyakumari", "Yercaud"],
+    "Telangana": ["Hyderabad", "Warangal", "Nagarjunasagar", "Bhadrachalam", "Ananthagiri Hills"]
 };
-// Fill missing states with 20 generic-named destinations if needed
-// For the sake of this task, I'll generate names for the remaining states to ensure 20 each.
 const generateDestinations = () => {
     const allData = [];
     for (const state of states) {
         const stateDestList = realDestinations[state] || [];
         const baseCoords = stateCenters[state] || [20, 78];
-        for (let i = 0; i < 20; i++) {
-            let name = stateDestList[i] || `${state} Spot ${i + 1}`;
+        for (const cityName of stateDestList) {
             const category = categories[Math.floor(Math.random() * categories.length)];
             const template = destinationTemplates[category];
+            const coords = REAL_COORDS[cityName] || [
+                baseCoords[0] + (Math.random() - 0.5) * 0.5,
+                baseCoords[1] + (Math.random() - 0.5) * 0.5
+            ];
             allData.push({
-                name,
+                name: cityName,
                 state,
                 short_description: template.desc,
                 estimated_budget_min: template.min + Math.floor(Math.random() * 2000),
                 estimated_budget_max: template.max + Math.floor(Math.random() * 5000),
-                recommended_days: template.days + (Math.random() > 0.7 ? 1 : 0),
-                latitude: baseCoords[0] + (Math.random() - 0.5) * 1.5,
-                longitude: baseCoords[1] + (Math.random() - 0.5) * 1.5,
+                recommended_days: template.days,
+                latitude: coords[0],
+                longitude: coords[1],
                 category
             });
         }
     }
     return allData;
 };
-const seed = async () => {
+async function seed() {
     try {
-        console.log('Connecting to MongoDB for seeding...');
+        console.log('Seeding Real Locations & Hills areas...');
         await mongoose.connect(process.env.MONGODB_URI);
-        console.log('Connected!');
-        console.log('Cleaning existing destinations...');
         await Destination.deleteMany({});
         const data = generateDestinations();
-        console.log(`Seeding ${data.length} destinations...`);
         await Destination.insertMany(data);
-        console.log('Seeding completed successfully!');
+        console.log('Seeding complete!');
         process.exit(0);
     }
-    catch (error) {
-        console.error('Error seeding database:', error);
+    catch (e) {
         process.exit(1);
     }
-};
+}
 seed();

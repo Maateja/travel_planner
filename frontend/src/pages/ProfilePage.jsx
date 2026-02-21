@@ -35,7 +35,7 @@ const ProfilePage = () => {
     } catch (err) {
         console.error("Fetch Profile Error:", err);
         // Fallback to local storage if API fails
-        const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+        const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
         setProfile({
             full_name: userData.full_name ?? userData.username ?? '',
             email: userData.email ?? '',
@@ -63,7 +63,7 @@ const ProfilePage = () => {
     try {
         const res = await api.post('users/profile', profile);
         // Update local storage too to keep it sync
-        localStorage.setItem('user_data', JSON.stringify(res.data));
+        sessionStorage.setItem('user_data', JSON.stringify(res.data));
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -74,7 +74,7 @@ const ProfilePage = () => {
   };
 
   const handleLogout = () => {
-    localStorage.clear();
+    sessionStorage.clear();
     navigate('/login');
   };
 

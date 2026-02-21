@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import AuthPage from './pages/AuthPage';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyEmail from './pages/VerifyEmail';
 import Dashboard from './pages/Dashboard';
 import TripForm from './pages/TripForm';
 import TripDetails from './pages/TripDetails';
@@ -28,6 +29,7 @@ const AnimatedRoutes = () => {
           <Route path="/register" element={<AuthPage isLogin={false} />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/verify-email/:token" element={<VerifyEmail />} />
           
           <Route path="/dashboard" element={<ProtectedRoute><MainLayout><Dashboard /></MainLayout></ProtectedRoute>} />
           <Route path="/create-trip" element={<ProtectedRoute><MainLayout><TripForm /></MainLayout></ProtectedRoute>} />

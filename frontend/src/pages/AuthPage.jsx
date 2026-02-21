@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { GoogleLogin } from '@react-oauth/google';
-import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle } from 'lucide-react';
+import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 function AuthPage({ isLogin = false }) {
@@ -13,6 +13,7 @@ function AuthPage({ isLogin = false }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,6 +23,7 @@ function AuthPage({ isLogin = false }) {
       password: ''
     });
     setError(null);
+    setSuccessMsg(null);
     setLoading(false);
   }, [isLogin]);
 
@@ -34,6 +36,7 @@ function AuthPage({ isLogin = false }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMsg(null);
     try {
       if (isLogin) {
         const res = await api.post('users/login', {
@@ -41,38 +44,30 @@ function AuthPage({ isLogin = false }) {
           password: formData.password
         });
         
-        // Save tokens to localStorage
-        localStorage.setItem('access_token', res.data.access);
-        localStorage.setItem('refresh_token', res.data.refresh);
+        // Save tokens to sessionStorage
+        sessionStorage.setItem('access_token', res.data.access);
+        sessionStorage.setItem('refresh_token', res.data.refresh);
         
         // Save user data
         if (res.data.user) {
-            localStorage.setItem('user_data', JSON.stringify(res.data.user));
+            sessionStorage.setItem('user_data', JSON.stringify(res.data.user));
         } else {
             // Fallback if user data not provided
-            localStorage.setItem('user_data', JSON.stringify({ username: formData.username }));
+            sessionStorage.setItem('user_data', JSON.stringify({ username: formData.username }));
         }
         
         // Clear any previous error
         setError(null);
+        setSuccessMsg(null);
         
         // Navigate to dashboard
         navigate('/dashboard');
       } else {
         const res = await api.post('users/register', formData);
         
-        // Auto-login after registration
-        localStorage.setItem('access_token', res.data.access);
-        localStorage.setItem('refresh_token', res.data.refresh);
-        
-        // Save user data
-        if (res.data.user) {
-            localStorage.setItem('user_data', JSON.stringify(res.data.user));
-        }
-        
-        // Clear error and navigate
-        setError(null);
-        navigate('/dashboard');
+        // Show success message and switch to login view
+        setError(res.data.message || 'Registration successful. Please check your email to verify your account.');
+        // Do not auto-login or navigate until verified.
       }
     } catch (err) {
       console.error("Auth Error:", err); // Log the full error
@@ -267,6 +262,17 @@ function AuthPage({ isLogin = false }) {
                                 {error}
                             </motion.div>
                         )}
+                        {successMsg && (
+                            <motion.div 
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="p-4 bg-green-50 rounded-2xl border-l-4 border-green-500 text-green-700 text-sm font-bold flex items-center gap-3"
+                            >
+                                <CheckCircle size={18} />
+                                {successMsg}
+                            </motion.div>
+                        )}
                     </AnimatePresence>
 
                     <div className="flex justify-end mb-2">
@@ -311,11 +317,11 @@ function AuthPage({ isLogin = false }) {
                                     const res = await api.post('users/google-login', {
                                         token: credentialResponse.credential
                                     });
-                                    localStorage.setItem('access_token', res.data.access);
-                                    localStorage.setItem('refresh_token', res.data.refresh);
+                                    sessionStorage.setItem('access_token', res.data.access);
+                                    sessionStorage.setItem('refresh_token', res.data.refresh);
                                     
                                     if (res.data.user) {
-                                        localStorage.setItem('user_data', JSON.stringify(res.data.user));
+                                        sessionStorage.setItem('user_data', JSON.stringify(res.data.user));
                                     }
 
                                     setError(null);

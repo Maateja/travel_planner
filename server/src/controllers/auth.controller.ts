@@ -96,21 +96,67 @@ export const register = async (req: Request, res: Response) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const hashedVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+
         // Create user
-        const newUser = new User({ username, email, password: hashedPassword });
+        const newUser = new User({ 
+            username: username.toLowerCase(), 
+            email: email.toLowerCase(), 
+            password: hashedPassword,
+            verificationToken: hashedVerificationToken,
+            isVerified: false
+        });
         await newUser.save();
 
-        const token = jwt.sign({ id: newUser._id, username: newUser.username }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
+        // Send Verification Email
+        const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email/${verificationToken}`;
+        const emailUser = (process.env.EMAIL_USER || "").trim();
+        const emailPass = (process.env.EMAIL_PASS || "").trim();
+
+        if (emailUser && emailPass) {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: emailUser, pass: emailPass }
+            });
+
+            const mailOptions = {
+                from: `"BAGSUP" <${emailUser}>`,
+                to: newUser.email,
+                subject: 'Verify Your Email – BAGSUP',
+                text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
+            };
+
+            await transporter.sendMail(mailOptions);
+        } else {
+            console.warn("Email credentials not configured. Verification email not sent.");
+        }
 
         res.status(201).json({ 
-            message: 'User registered successfully',
-            access: token,
-            user: {
-                id: newUser._id,
-                username: newUser.username,
-                email: newUser.email
-            }
+            message: 'User registered successfully. Please check your email to verify your account.'
         });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+export const verifyEmail = async (req: Request, res: Response) => {
+    try {
+        const { token } = req.params;
+        const hashedToken = crypto.createHash('sha256').update(token as string).digest('hex');
+
+        const user = await User.findOne({ verificationToken: hashedToken });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid verification link." });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+
+        res.json({ message: "Email verified successfully. You can now log in." });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
@@ -125,6 +171,10 @@ export const login = async (req: Request, res: Response) => {
         });
         
         if (!user || !user.password) return res.status(401).json({ error: 'Invalid credentials' });
+
+        if (user.isVerified === false) {
+            return res.status(403).json({ error: 'Please check your email and verify your account first.' });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
@@ -169,7 +219,8 @@ export const googleLogin = async (req: Request, res: Response) => {
                 email,
                 googleId,
                 avatar: picture,
-                full_name: name
+                full_name: name,
+                isVerified: true
             });
             await user.save();
         } else if (!user.googleId) {

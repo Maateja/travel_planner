@@ -8,14 +8,14 @@ const UserMenu = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user_data');
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('user_data');
     sessionStorage.clear(); // Clear temporary roadmap and other session states
     navigate('/login');
   };
 
-  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
   const displayName = userData.full_name || userData.username || 'Explorer Mode';
 
   return (

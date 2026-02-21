@@ -70,15 +70,15 @@ const ChatBot = () => {
   const messagesEndRef = useRef(null);
 
   const [chatSessions, setChatSessions] = useState(() => {
-    return JSON.parse(localStorage.getItem('bagsup_chat_sessions') || '[]');
+    return JSON.parse(sessionStorage.getItem('bagsup_chat_sessions') || '[]');
   });
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+    const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
     const name = userData.full_name?.split(' ')[0] || userData.username || 'Explorer';
     setUserName(name);
     
-    const savedCurrentChat = JSON.parse(localStorage.getItem('bagsup_current_chat') || 'null');
+    const savedCurrentChat = JSON.parse(sessionStorage.getItem('bagsup_current_chat') || 'null');
     if (savedCurrentChat && savedCurrentChat.length > 0) {
         setMessages(savedCurrentChat);
     } else {
@@ -94,13 +94,13 @@ const ChatBot = () => {
   // Save current chat automatically
   useEffect(() => {
     if (messages.length > 0) {
-        localStorage.setItem('bagsup_current_chat', JSON.stringify(messages));
+        sessionStorage.setItem('bagsup_current_chat', JSON.stringify(messages));
     }
   }, [messages]);
 
   // Save history automatically
   useEffect(() => {
-      localStorage.setItem('bagsup_chat_sessions', JSON.stringify(chatSessions));
+      sessionStorage.setItem('bagsup_chat_sessions', JSON.stringify(chatSessions));
   }, [chatSessions]);
 
   const startNewChat = () => {
@@ -321,8 +321,8 @@ const ChatBot = () => {
                                     onClick={() => {
                                         setChatSessions([]);
                                         setMessages([{ role: 'assistant', content: `Hey ${userName} 👋 I've cleared the chat for you. Where to next?` }]);
-                                        localStorage.removeItem('bagsup_chat_sessions');
-                                        localStorage.removeItem('bagsup_current_chat');
+                                        sessionStorage.removeItem('bagsup_chat_sessions');
+                                        sessionStorage.removeItem('bagsup_current_chat');
                                         setActiveTab('chat');
                                     }}
                                     className="text-[9px] font-black text-primary-500 uppercase tracking-widest hover:text-primary-600 transition-colors"

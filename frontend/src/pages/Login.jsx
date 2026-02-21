@@ -12,7 +12,7 @@ function Login() {
     e.preventDefault();
     try {
       const res = await api.post('users/login/', { username, password });
-      localStorage.setItem('token', res.data.token);
+      sessionStorage.setItem('token', res.data.token);
       navigate('/dashboard');
     } catch (error) {
       alert('Login failed!');

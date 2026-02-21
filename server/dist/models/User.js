@@ -9,6 +9,10 @@ const UserSchema = new Schema({
     age: { type: Number },
     gender: { type: String },
     dob: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
     createdAt: { type: Date, default: Date.now }
 }, {
     toJSON: { virtuals: true },

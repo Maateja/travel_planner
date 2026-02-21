@@ -2,6 +2,70 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "No account found with this email." });
+        }
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+        user.resetPasswordToken = hashedToken;
+        user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+        await user.save();
+        const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
+        const emailUser = (process.env.EMAIL_USER || "").trim();
+        const emailPass = (process.env.EMAIL_PASS || "").trim();
+        console.log(`[Auth] Attempting SMTP send with ${emailUser}`);
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: emailUser,
+                pass: emailPass
+            }
+        });
+        const mailOptions = {
+            from: `"BAGSUP" <${emailUser}>`,
+            to: user.email,
+            subject: 'Reset Your Password – BAGSUP',
+            text: `Click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 15 minutes.`
+        };
+        await transporter.sendMail(mailOptions);
+        res.json({ message: "Recovery link has been sent to your email." });
+    }
+    catch (err) {
+        console.error("Forgot Password Error:", err);
+        res.status(500).json({ error: "Failed to send recovery email. " + err.message });
+    }
+};
+export const resetPassword = async (req, res) => {
+    try {
+        const token = req.params.token;
+        const { password } = req.body;
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired reset link." });
+        }
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+        res.json({ message: "Your password has been reset successfully." });
+    }
+    catch (err) {
+        console.error("Reset Password Error:", err);
+        res.status(500).json({ error: err.message });
+    }
+};
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export const register = async (req, res) => {
     try {
@@ -12,19 +76,58 @@ export const register = async (req, res) => {
             return res.status(400).json({ error: 'User already exists with this email or username' });
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
+        // Generate verification token
+        const verificationToken = crypto.randomBytes(32).toString('hex');
+        const hashedVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
         // Create user
-        const newUser = new User({ username, email, password: hashedPassword });
-        await newUser.save();
-        const token = jwt.sign({ id: newUser._id, username: newUser.username }, process.env.JWT_SECRET, { expiresIn: '7d' });
-        res.status(201).json({
-            message: 'User registered successfully',
-            access: token,
-            user: {
-                id: newUser._id,
-                username: newUser.username,
-                email: newUser.email
-            }
+        const newUser = new User({
+            username: username.toLowerCase(),
+            email: email.toLowerCase(),
+            password: hashedPassword,
+            verificationToken: hashedVerificationToken,
+            isVerified: false
         });
+        await newUser.save();
+        // Send Verification Email
+        const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email/${verificationToken}`;
+        const emailUser = (process.env.EMAIL_USER || "").trim();
+        const emailPass = (process.env.EMAIL_PASS || "").trim();
+        if (emailUser && emailPass) {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: { user: emailUser, pass: emailPass }
+            });
+            const mailOptions = {
+                from: `"BAGSUP" <${emailUser}>`,
+                to: newUser.email,
+                subject: 'Verify Your Email – BAGSUP',
+                text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
+            };
+            await transporter.sendMail(mailOptions);
+        }
+        else {
+            console.warn("Email credentials not configured. Verification email not sent.");
+        }
+        res.status(201).json({
+            message: 'User registered successfully. Please check your email to verify your account.'
+        });
+    }
+    catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+export const verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        const user = await User.findOne({ verificationToken: hashedToken });
+        if (!user) {
+            return res.status(400).json({ message: "Invalid verification link." });
+        }
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        await user.save();
+        res.json({ message: "Email verified successfully. You can now log in." });
     }
     catch (err) {
         res.status(500).json({ error: err.message });
@@ -38,6 +141,9 @@ export const login = async (req, res) => {
         });
         if (!user || !user.password)
             return res.status(401).json({ error: 'Invalid credentials' });
+        if (user.isVerified === false) {
+            return res.status(403).json({ error: 'Please check your email and verify your account first.' });
+        }
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch)
             return res.status(401).json({ error: 'Invalid credentials' });
@@ -78,7 +184,8 @@ export const googleLogin = async (req, res) => {
                 email,
                 googleId,
                 avatar: picture,
-                full_name: name
+                full_name: name,
+                isVerified: true
             });
             await user.save();
         }

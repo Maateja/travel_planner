@@ -93,7 +93,7 @@ function Dashboard() {
 
   useEffect(() => {
     fetchTrips();
-    const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+    const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
     if (userData.full_name) {
       setUserName(userData.full_name.split(' ')[0]);
     } else if (userData.username) {
@@ -101,7 +101,7 @@ function Dashboard() {
     }
 
     // Load temporary roadmap from session storage only if authenticated
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     if (token) {
         const savedRoadmap = sessionStorage.getItem('currentRoadmap');
         if (savedRoadmap) {
@@ -112,7 +112,7 @@ function Dashboard() {
 
   const fetchTrips = async () => {
     // Only fetch if authenticated
-    const token = localStorage.getItem('access_token');
+    const token = sessionStorage.getItem('access_token');
     if (!token) {
       setLoading(false);
       return;
@@ -144,7 +144,12 @@ function Dashboard() {
   
   // Find trips that are in the future
   const futureTrips = [...validTrips]
-    .filter(t => t.start_date && new Date(t.start_date) > now)
+    .filter(t => {
+      if (!t.start_date) return false;
+      const end = t.end_date ? new Date(t.end_date) : new Date(t.start_date);
+      end.setHours(23, 59, 59, 999);
+      return end > now;
+    })
     .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 
   // If no future trips, take the absolute last one (most recently added/started)
@@ -153,10 +158,19 @@ function Dashboard() {
     : [...validTrips].sort((a, b) => new Date(b.createdAt || b.start_date) - new Date(a.createdAt || a.start_date))[0];
 
   const totalBudgetSpent = validTrips
-    .filter(t => t.start_date && new Date(t.start_date) <= now)
+    .filter(t => {
+      if (!t.start_date) return false;
+      const end = t.end_date ? new Date(t.end_date) : new Date(t.start_date);
+      end.setHours(23, 59, 59, 999);
+      return end <= now;
+    })
     .reduce((acc, trip) => acc + (Number(trip.budget) || 0), 0);
     
-  const activeBudget = upcomingTrip && upcomingTrip.start_date && new Date(upcomingTrip.start_date) > now 
+  const activeBudget = upcomingTrip && upcomingTrip.start_date && (() => {
+      const end = upcomingTrip.end_date ? new Date(upcomingTrip.end_date) : new Date(upcomingTrip.start_date);
+      end.setHours(23, 59, 59, 999);
+      return end > now;
+  })()
     ? Number(upcomingTrip.budget) 
     : 0;
 
@@ -357,6 +371,7 @@ function Dashboard() {
                         </span>
                         <span className="flex items-center gap-1.5 text-white/90 text-xs font-bold bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
                            <Calendar size={12} /> {upcomingTrip.start_date ? new Date(upcomingTrip.start_date).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'TBD'}
+                           {upcomingTrip.end_date && ` - ${new Date(upcomingTrip.end_date).toLocaleDateString([], { month: 'short', day: 'numeric' })}`}
                         </span>
                       </div>
                       
@@ -459,7 +474,8 @@ function Dashboard() {
                       <div className="flex-1">
                         <h5 className="text-sm font-black text-gray-900 uppercase leading-none mb-1">{trip.destination}</h5>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-                           {trip.start_date ? new Date(trip.start_date).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'TBD'} • ₹{trip.budget || 0}
+                           {trip.start_date ? new Date(trip.start_date).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'TBD'}
+                           {trip.end_date && ` - ${new Date(trip.end_date).toLocaleDateString([], { month: 'short', day: 'numeric' })}`} • ₹{trip.budget || 0}
                         </p>
                       </div>
                       <Link to={`/trip/${trip._id || trip.id}`} onClick={(e) => e.stopPropagation()} className="p-2 text-gray-300 hover:text-primary-500 transition-colors">

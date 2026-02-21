@@ -7,7 +7,7 @@ const Header = ({ toggleSidebar }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
-  const userData = JSON.parse(localStorage.getItem('user_data') || '{}');
+  const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
   const displayName = userData.full_name || userData.username || 'Explorer';
 
   // Handle click outside to close dropdown
@@ -22,9 +22,9 @@ const Header = ({ toggleSidebar }) => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user_data');
+    sessionStorage.removeItem('access_token');
+    sessionStorage.removeItem('refresh_token');
+    sessionStorage.removeItem('user_data');
     navigate('/login');
     setIsProfileOpen(false);
   };

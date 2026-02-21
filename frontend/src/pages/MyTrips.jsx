@@ -55,7 +55,14 @@ function MyTrips() {
 
   const filteredTrips = trips.filter(trip => {
     const matchesSearch = trip.destination.toLowerCase().includes(searchTerm.toLowerCase());
-    const isUpcoming = new Date(trip.start_date) > new Date();
+    
+    let isUpcoming = false;
+    if (trip.start_date) {
+        const endDate = trip.end_date ? new Date(trip.end_date) : new Date(trip.start_date);
+        endDate.setHours(23, 59, 59, 999);
+        isUpcoming = endDate > new Date();
+    }
+
     if (filter === 'Upcoming') return matchesSearch && isUpcoming;
     if (filter === 'Past') return matchesSearch && !isUpcoming;
     return matchesSearch;
@@ -107,7 +114,12 @@ function MyTrips() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
                 <AnimatePresence>
                     {filteredTrips.map((trip, idx) => {
-                        const isUpcoming = new Date(trip.start_date) > new Date();
+                        let isUpcoming = false;
+                        if (trip.start_date) {
+                            const endDate = trip.end_date ? new Date(trip.end_date) : new Date(trip.start_date);
+                            endDate.setHours(23, 59, 59, 999);
+                            isUpcoming = endDate > new Date();
+                        }
                         return (
                             <motion.div 
                                 key={trip.id}
@@ -157,7 +169,8 @@ function MyTrips() {
                                             <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Planned Date</p>
                                             <div className="flex items-center gap-2 text-gray-900 font-bold text-sm">
                                                 <Calendar size={14} className="text-blue-500" />
-                                                {new Date(trip.start_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                {trip.start_date ? new Date(trip.start_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBD'}
+                                                {trip.end_date && ` - ${new Date(trip.end_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}`}
                                             </div>
                                         </div>
                                         <div className="space-y-1 text-right">

@@ -1,15 +1,19 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes.js';
 import tripRoutes from './routes/trip.routes.js';
 import itineraryRoutes from './routes/itinerary.routes.js';
 import destinationRoutes from './routes/destination.routes.js';
 import chatRoutes from './routes/chat.routes.js';
-dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
+console.log("--- System Startup ---");
+console.log("EMAIL_USER loaded:", !!process.env.EMAIL_USER);
+console.log("EMAIL_PASS loaded:", !!process.env.EMAIL_PASS);
+console.log("----------------------");
 // Middleware
 app.use(cors());
 app.use(express.json());

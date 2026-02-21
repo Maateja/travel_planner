@@ -13,6 +13,8 @@ export interface IUser extends Document {
     dob?: string;
     resetPasswordToken?: string;
     resetPasswordExpires?: Date;
+    isVerified?: boolean;
+    verificationToken?: string;
     createdAt: Date;
 }
 
@@ -28,6 +30,8 @@ const UserSchema: Schema = new Schema({
     dob: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    isVerified: { type: Boolean, default: false },
+    verificationToken: { type: String },
     createdAt: { type: Date, default: Date.now }
 }, {
     toJSON: { virtuals: true },
