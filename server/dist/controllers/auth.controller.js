@@ -36,7 +36,9 @@ export const forgotPassword = async (req, res) => {
             subject: 'Reset Your Password – BAGSUP',
             text: `Click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 15 minutes.`
         };
-        await transporter.sendMail(mailOptions);
+        const sendMailPromise = transporter.sendMail(mailOptions);
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out after 10 seconds')), 10000));
+        await Promise.race([sendMailPromise, timeoutPromise]);
         res.json({ message: "Recovery link has been sent to your email." });
     }
     catch (err) {
@@ -110,7 +112,9 @@ export const register = async (req, res) => {
                 text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
             };
             try {
-                await transporter.sendMail(mailOptions);
+                const sendMailPromise = transporter.sendMail(mailOptions);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Email sending timed out after 10 seconds')), 10000));
+                await Promise.race([sendMailPromise, timeoutPromise]);
             }
             catch (err) {
                 console.error("Verification email failed:", err);
