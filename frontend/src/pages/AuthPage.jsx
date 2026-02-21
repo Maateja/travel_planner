@@ -65,8 +65,9 @@ function AuthPage({ isLogin = false }) {
       } else {
         const res = await api.post('users/register', formData);
         
-        // Show success message and switch to login view
-        setError(res.data.message || 'Registration successful. Please check your email to verify your account.');
+        // Show success message
+        setSuccessMsg(res.data.message || 'Registration successful. Please check your email to verify your account.');
+        setError(null);
         // Do not auto-login or navigate until verified.
       }
     } catch (err) {
