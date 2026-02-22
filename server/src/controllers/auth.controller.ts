@@ -34,14 +34,16 @@ export const forgotPassword = async (req: Request, res: Response) => {
         console.log(`[Auth] Attempting SMTP send with ${emailUser}`);
 
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
             auth: {
                 user: emailUser,
                 pass: emailPass
             },
-            connectionTimeout: 10000,
-            greetingTimeout: 10000,
-            socketTimeout: 10000
+            connectionTimeout: 20000,
+            greetingTimeout: 20000,
+            socketTimeout: 20000
         });
 
         const mailOptions = {
@@ -53,7 +55,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         const sendMailPromise = transporter.sendMail(mailOptions);
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Email sending timed out after 10 seconds')), 10000)
+            setTimeout(() => reject(new Error('Email sending timed out after 20 seconds')), 20000)
         );
 
         await Promise.race([sendMailPromise, timeoutPromise]);
@@ -149,11 +151,13 @@ export const register = async (req: Request, res: Response) => {
 
         if (emailUser && emailPass) {
             const transporter = nodemailer.createTransport({
-                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
                 auth: { user: emailUser, pass: emailPass },
-                connectionTimeout: 10000,
-                greetingTimeout: 10000,
-                socketTimeout: 10000
+                connectionTimeout: 20000,
+                greetingTimeout: 20000,
+                socketTimeout: 20000
             });
 
             const mailOptions = {
@@ -166,7 +170,7 @@ export const register = async (req: Request, res: Response) => {
             try {
                 const sendMailPromise = transporter.sendMail(mailOptions);
                 const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Email sending timed out after 10 seconds')), 10000)
+                    setTimeout(() => reject(new Error('Email sending timed out after 20 seconds')), 20000)
                 );
 
                 await Promise.race([sendMailPromise, timeoutPromise]);
