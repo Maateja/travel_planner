@@ -7,6 +7,7 @@ import crypto from 'crypto';
 import nodemailer from 'nodemailer';
 import dns from 'dns';
 import { promisify } from 'util';
+import axios from 'axios';
 
 const resolveMx = promisify(dns.resolveMx);
 
@@ -108,15 +109,35 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
 
-        // Domain DNS check for random emails
-        try {
-            const domain = email.split('@')[1];
-            const mxRecords = await resolveMx(domain);
-            if (!mxRecords || mxRecords.length === 0) {
-                return res.status(400).json({ error: 'Invalid email or password' });
+        // Real Email Verification via ZeroBounce API
+        if (process.env.ZEROBOUNCE_API_KEY) {
+            try {
+                const response = await axios.get(`https://api.zerobounce.net/v2/validate`, {
+                    params: {
+                        api_key: process.env.ZEROBOUNCE_API_KEY,
+                        email: email,
+                        ip_address: req.ip || ''
+                    }
+                });
+
+                const status = response.data.status;
+                const subStatus = response.data.sub_status;
+
+                // Stop the signup if the email is invalid, disposable, or definitively fake
+                if (status === 'invalid' || status === 'spamtrap' || status === 'abuse' || status === 'do_not_mail') {
+                     return res.status(400).json({ error: 'Invalid email or password' });
+                }
+                
+                // Block temporary/disposable emails
+                if (subStatus === 'disposable') {
+                    return res.status(400).json({ error: 'Invalid email or password' });
+                }
+
+            } catch (err) {
+                console.error("ZeroBounce API Error:", err);
+                // We intentionally don't block signup here if the API itself fails, 
+                // to prevent locking out legitimate users if ZeroBounce goes down.
             }
-        } catch (err) {
-            return res.status(400).json({ error: 'Invalid email or password' });
         }
 
         if (!password || password.length < 6) {
