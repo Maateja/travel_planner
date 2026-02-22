@@ -63,6 +63,18 @@ function AuthPage({ isLogin = false }) {
         // Navigate to dashboard
         navigate('/dashboard');
       } else {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(formData.email)) {
+          setError("Invalid email format. Please provide a valid email address.");
+          setLoading(false);
+          return;
+        }
+        if (formData.password.length < 6) {
+          setError("Password must be at least 6 characters long.");
+          setLoading(false);
+          return;
+        }
+
         const res = await api.post('users/register', formData);
         
         // Show success message

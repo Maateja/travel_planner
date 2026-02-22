@@ -5,6 +5,10 @@ import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import dns from 'dns';
+import { promisify } from 'util';
+
+const resolveMx = promisify(dns.resolveMx);
 
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
@@ -96,6 +100,26 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export const register = async (req: Request, res: Response) => {
     try {
         const { username, email, password } = req.body;
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Invalid email address provided.' });
+        }
+
+        // Domain DNS check for random emails
+        try {
+            const domain = email.split('@')[1];
+            const mxRecords = await resolveMx(domain);
+            if (!mxRecords || mxRecords.length === 0) {
+                return res.status(400).json({ error: 'The email domain seems invalid. Please provide a real email address.' });
+            }
+        } catch (err) {
+            return res.status(400).json({ error: 'The email domain seems invalid. Please provide a real email address.' });
+        }
+
+        if (!password || password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+        }
 
         // Check if user exists
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
