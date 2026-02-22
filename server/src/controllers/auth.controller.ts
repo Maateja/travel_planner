@@ -109,34 +109,32 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
 
-        // Real Email Verification via ZeroBounce API
-        if (process.env.ZEROBOUNCE_API_KEY) {
+        // Real Email Verification via Abstract API
+        if (process.env.ABSTRACT_API_KEY) {
             try {
-                const response = await axios.get(`https://api.zerobounce.net/v2/validate`, {
+                const response = await axios.get(`https://emailvalidation.abstractapi.com/v1/`, {
                     params: {
-                        api_key: process.env.ZEROBOUNCE_API_KEY,
-                        email: email,
-                        ip_address: req.ip || ''
+                        api_key: process.env.ABSTRACT_API_KEY,
+                        email: email
                     }
                 });
 
-                const status = response.data.status;
-                const subStatus = response.data.sub_status;
+                const data = response.data;
 
-                // Stop the signup if the email is invalid, disposable, or definitively fake
-                if (status === 'invalid' || status === 'spamtrap' || status === 'abuse' || status === 'do_not_mail') {
+                // Stop the signup if the email is incorrectly formatted or definitely fake
+                if (!data.format_valid?.value || !data.is_smtp_valid?.value) {
                      return res.status(400).json({ error: 'Invalid email or password' });
                 }
                 
                 // Block temporary/disposable emails
-                if (subStatus === 'disposable') {
+                if (data.is_disposable_email?.value) {
                     return res.status(400).json({ error: 'Invalid email or password' });
                 }
 
             } catch (err) {
-                console.error("ZeroBounce API Error:", err);
+                console.error("Abstract API Error:", err);
                 // We intentionally don't block signup here if the API itself fails, 
-                // to prevent locking out legitimate users if ZeroBounce goes down.
+                // to prevent locking out legitimate users if Abstract goes down.
             }
         }
 
