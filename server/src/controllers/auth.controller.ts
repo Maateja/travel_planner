@@ -105,7 +105,7 @@ export const register = async (req: Request, res: Response) => {
 
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: 'Invalid email address provided.' });
+            return res.status(400).json({ error: 'Invalid email or password' });
         }
 
         // Domain DNS check for random emails
@@ -113,14 +113,14 @@ export const register = async (req: Request, res: Response) => {
             const domain = email.split('@')[1];
             const mxRecords = await resolveMx(domain);
             if (!mxRecords || mxRecords.length === 0) {
-                return res.status(400).json({ error: 'The email domain seems invalid. Please provide a real email address.' });
+                return res.status(400).json({ error: 'Invalid email or password' });
             }
         } catch (err) {
-            return res.status(400).json({ error: 'The email domain seems invalid. Please provide a real email address.' });
+            return res.status(400).json({ error: 'Invalid email or password' });
         }
 
         if (!password || password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
+            return res.status(400).json({ error: 'Invalid email or password' });
         }
 
         // Check if user exists
@@ -167,18 +167,10 @@ export const register = async (req: Request, res: Response) => {
                 text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
             };
 
-            try {
-                const sendMailPromise = transporter.sendMail(mailOptions);
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Email sending timed out after 20 seconds')), 20000)
-                );
-
-                await Promise.race([sendMailPromise, timeoutPromise]);
-            } catch (err: any) {
-                console.error("Verification email failed:", err);
-                await User.findByIdAndDelete(newUser._id);
-                return res.status(500).json({ error: "Could not send verification email. Please try again later. " + err.message });
-            }
+            // Execute email sending in the background to make the process instant
+            transporter.sendMail(mailOptions).catch((err: any) => {
+                console.error("Verification email failed in background:", err);
+            });
         } else {
             console.warn("Email credentials not configured. Verification email not sent.");
         }
