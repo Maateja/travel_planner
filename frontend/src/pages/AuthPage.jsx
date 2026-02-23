@@ -78,7 +78,7 @@ function AuthPage({ isLogin = false }) {
         const res = await api.post('users/register', formData);
         
         // Show success message
-        setSuccessMsg(res.data.message || 'Registration successful. Please check your email to verify your account.');
+        setSuccessMsg(res.data.message || 'Registration successful. You can now log in.');
         setError(null);
         // Do not auto-login or navigate until verified.
       }

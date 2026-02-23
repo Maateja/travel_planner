@@ -109,25 +109,7 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
 
-        // Real Email Verification (Alternative to Abstract API)
-        try {
-            const domain = email.split('@')[1];
-            
-            // 1. Check MX records to ensure domain can receive emails
-            const mxRecords = await resolveMx(domain).catch(() => []);
-            if (!mxRecords || mxRecords.length === 0) {
-                return res.status(400).json({ error: 'Invalid email or password' });
-            }
-
-            // 2. Check for disposable emails using free Kickbox API
-            const kickboxRes = await axios.get(`https://open.kickbox.com/v1/disposable/${domain}`).catch(() => null);
-            if (kickboxRes && kickboxRes.data && kickboxRes.data.disposable) {
-                return res.status(400).json({ error: 'Invalid email or password' });
-            }
-        } catch (err) {
-            console.error("Email Validation Error:", err);
-            // Don't block if our validation logic itself fails unexpectedly
-        }
+        // Email format is verified, proceed to check if user exists.
 
         if (!password || password.length < 6) {
             return res.status(400).json({ error: 'Invalid email or password' });
@@ -140,61 +122,17 @@ export const register = async (req: Request, res: Response) => {
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Generate verification token
-        const verificationToken = crypto.randomBytes(32).toString('hex');
-        const hashedVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-
         // Create user
         const newUser = new User({ 
             username: username.toLowerCase(), 
             email: email.toLowerCase(), 
             password: hashedPassword,
-            verificationToken: hashedVerificationToken,
-            isVerified: false
+            isVerified: true
         });
         await newUser.save();
 
-        // Send Verification Email
-        const verifyUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email/${verificationToken}`;
-        const emailUser = (process.env.EMAIL_USER || "").trim();
-        const emailPass = (process.env.EMAIL_PASS || "").trim();
-
-        if (emailUser && emailPass) {
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.gmail.com',
-                port: 465,
-                secure: true,
-                auth: { user: emailUser, pass: emailPass },
-                connectionTimeout: 20000,
-                greetingTimeout: 20000,
-                socketTimeout: 20000
-            });
-
-            const mailOptions = {
-                from: `"BAGSUP" <${emailUser}>`,
-                to: newUser.email,
-                subject: 'Verify Your Email – BAGSUP',
-                text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
-            };
-
-            // Execute email sending and await it to catch any delivery connection errors
-            try {
-                const sendMailPromise = transporter.sendMail(mailOptions);
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Email sending timed out')), 20000)
-                );
-                await Promise.race([sendMailPromise, timeoutPromise]);
-            } catch (err: any) {
-                console.error("Verification email failed to send:", err);
-                await User.findByIdAndDelete(newUser._id); // Rollback user creation
-                return res.status(500).json({ error: "Failed to send verification email: " + (err.message || String(err)) });
-            }
-        } else {
-            console.warn("Email credentials not configured. Verification email not sent.");
-        }
-
         res.status(201).json({ 
-            message: 'User registered successfully. Please check your email to verify your account.'
+            message: 'User registered successfully. You can now log in.'
         });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
@@ -231,11 +169,6 @@ export const login = async (req: Request, res: Response) => {
         });
         
         if (!user || !user.password) return res.status(401).json({ error: 'Invalid credentials' });
-
-        if (user.isVerified === false) {
-            return res.status(403).json({ error: 'Please check your email and verify your account first.' });
-        }
-
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
