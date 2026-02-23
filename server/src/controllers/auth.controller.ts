@@ -187,7 +187,7 @@ export const register = async (req: Request, res: Response) => {
             } catch (err: any) {
                 console.error("Verification email failed to send:", err);
                 await User.findByIdAndDelete(newUser._id); // Rollback user creation
-                return res.status(500).json({ error: "Failed to send verification email. Please try a valid email or try again later." });
+                return res.status(500).json({ error: "Failed to send verification email: " + (err.message || String(err)) });
             }
         } else {
             console.warn("Email credentials not configured. Verification email not sent.");
