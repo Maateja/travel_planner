@@ -109,33 +109,24 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid email or password' });
         }
 
-        // Real Email Verification via Abstract API
-        if (process.env.ABSTRACT_API_KEY) {
-            try {
-                const response = await axios.get(`https://emailvalidation.abstractapi.com/v1/`, {
-                    params: {
-                        api_key: process.env.ABSTRACT_API_KEY,
-                        email: email
-                    }
-                });
-
-                const data = response.data;
-
-                // Stop the signup if the email is incorrectly formatted or definitely fake
-                if (!data.format_valid?.value || !data.is_smtp_valid?.value) {
-                     return res.status(400).json({ error: 'Invalid email or password' });
-                }
-                
-                // Block temporary/disposable emails
-                if (data.is_disposable_email?.value) {
-                    return res.status(400).json({ error: 'Invalid email or password' });
-                }
-
-            } catch (err) {
-                console.error("Abstract API Error:", err);
-                // We intentionally don't block signup here if the API itself fails, 
-                // to prevent locking out legitimate users if Abstract goes down.
+        // Real Email Verification (Alternative to Abstract API)
+        try {
+            const domain = email.split('@')[1];
+            
+            // 1. Check MX records to ensure domain can receive emails
+            const mxRecords = await resolveMx(domain).catch(() => []);
+            if (!mxRecords || mxRecords.length === 0) {
+                return res.status(400).json({ error: 'Invalid email or password' });
             }
+
+            // 2. Check for disposable emails using free Kickbox API
+            const kickboxRes = await axios.get(`https://open.kickbox.com/v1/disposable/${domain}`).catch(() => null);
+            if (kickboxRes && kickboxRes.data && kickboxRes.data.disposable) {
+                return res.status(400).json({ error: 'Invalid email or password' });
+            }
+        } catch (err) {
+            console.error("Email Validation Error:", err);
+            // Don't block if our validation logic itself fails unexpectedly
         }
 
         if (!password || password.length < 6) {
@@ -186,10 +177,18 @@ export const register = async (req: Request, res: Response) => {
                 text: `Welcome to BAGSUP! Click the link below to verify your account:\n${verifyUrl}`
             };
 
-            // Execute email sending in the background to make the process instant
-            transporter.sendMail(mailOptions).catch((err: any) => {
-                console.error("Verification email failed in background:", err);
-            });
+            // Execute email sending and await it to catch any delivery connection errors
+            try {
+                const sendMailPromise = transporter.sendMail(mailOptions);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Email sending timed out')), 20000)
+                );
+                await Promise.race([sendMailPromise, timeoutPromise]);
+            } catch (err: any) {
+                console.error("Verification email failed to send:", err);
+                await User.findByIdAndDelete(newUser._id); // Rollback user creation
+                return res.status(500).json({ error: "Failed to send verification email. Please try a valid email or try again later." });
+            }
         } else {
             console.warn("Email credentials not configured. Verification email not sent.");
         }
