@@ -87,6 +87,7 @@ Follow these steps to set up the project locally on your machine.
 Bash
 git clone [https://github.com/yourusername/bagsup.git](https://github.com/yourusername/bagsup.git)
 cd bagsup
+
 2️⃣ Backend Setup
 Navigate to the server directory, install dependencies, and start the development server.
 
@@ -94,6 +95,7 @@ Bash
 cd server
 npm install
 npm run dev
+
 3️⃣ Frontend Setup
 Open a new terminal, navigate to the client directory, install dependencies, and start the React app.
 
@@ -103,6 +105,7 @@ npm install
 npm run dev
 🔑 Environment Variables
 To run this project, you will need to add the following environment variables. Create a .env file inside the server folder and add the following:
+
 
 Code snippet
 PORT=5000
