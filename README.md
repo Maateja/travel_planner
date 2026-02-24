@@ -1,10 +1,4 @@
-# 🎒 BagsUp – AI Budget Travel Planner for Students
-
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
-![Gemini AI](https://img.shields.io/badge/Google_Gemini_AI-8E75B2?style=for-the-badge&logo=google&logoColor=white)
+# BagsUp – AI Budget Travel Planner for Students
 
 **BagsUp** is an AI-powered travel planning platform designed specifically for students. It helps users generate personalized, budget-friendly travel itineraries with smart cost distribution, interactive roadmap visualization, and real-time budget tracking. 
 
