@@ -496,8 +496,8 @@ function Dashboard() {
         </div>
       </motion.div>
 
-      <div className="text-center pb-8 pt-4 text-gray-400 font-medium text-sm tracking-widest uppercase relative z-10">
-        MAA TEJA NAIK
+      <div className="text-center pb-8 pt-4 text-gray-400 font-medium text-xs tracking-wider relative z-10">
+        &copy; 2026 | Designed and Developed by MAA TEJA NAIK
       </div>
 
     </div>
