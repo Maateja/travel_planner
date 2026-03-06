@@ -494,12 +494,14 @@ function Dashboard() {
 
           </div>
         </div>
+
+        {/* Credits Footer */}
+        <div className="flex justify-center w-full pt-12 pb-4">
+          <div className="text-gray-400 font-bold text-[11px] tracking-widest uppercase bg-white/50 backdrop-blur-sm px-6 py-2 rounded-full border border-gray-100 shadow-sm">
+            &copy; 2026 | Designed by <span className="text-primary-600">MAA TEJA NAIK</span>
+          </div>
+        </div>
       </motion.div>
-
-      <div className="text-center pb-8 pt-4 text-gray-400 font-medium text-xs tracking-wider relative z-10">
-        &copy; 2026 | Designed and Developed by MAA TEJA NAIK
-      </div>
-
     </div>
   );
 }
