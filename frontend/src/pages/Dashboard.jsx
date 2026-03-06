@@ -496,6 +496,9 @@ function Dashboard() {
         </div>
       </motion.div>
 
+      <div className="text-center pb-8 pt-4 text-gray-400 font-medium text-sm tracking-widest uppercase relative z-10">
+        MAA TEJA NAIK
+      </div>
 
     </div>
   );
