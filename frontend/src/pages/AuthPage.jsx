@@ -17,6 +17,11 @@ function AuthPage({ isLogin = false }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Ping the backend to wake it up from cold sleep (e.g. Render free tier)
+    // This makes the first Google Login or regular login attempt much faster 
+    // by ensuring the server is already awake by the time the user clicks submit.
+    api.get('/').catch(() => {});
+
     setFormData({
       username: '',
       email: '',
