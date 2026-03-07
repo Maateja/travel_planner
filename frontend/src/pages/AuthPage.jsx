@@ -193,34 +193,34 @@ function AuthPage({ isLogin = false }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="w-full max-w-lg mx-auto bg-white rounded-[48px] shadow-2xl shadow-gray-300/50 border border-gray-100 p-12 lg:p-16 relative overflow-hidden"
+            className="w-full max-w-lg mx-auto bg-white rounded-[32px] shadow-2xl shadow-gray-300/50 border border-gray-100 p-8 lg:p-10 relative overflow-hidden"
         >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-bl-full -z-0 opacity-50"></div>
             
             <div className="relative z-10">
-                <div className="text-center mb-12 lg:hidden flex flex-col items-center">
-                    <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-24 mb-4 object-contain" />
-                    <h1 className="text-4xl font-black text-gray-900 mb-2 font-display tracking-tighter uppercase">BAGS UP</h1>
-                    <p className="text-xs font-black text-gray-400 tracking-widest uppercase mb-8">Pack smart. Travel smarter.</p>
+                <div className="text-center mb-6 lg:hidden flex flex-col items-center">
+                    <img src="/logo.png" alt="BAGS UP Logo" className="w-16 h-16 mb-2 object-contain" />
+                    <h1 className="text-3xl font-black text-gray-900 mb-1 font-display tracking-tighter uppercase">BAGS UP</h1>
+                    <p className="text-xs font-black text-gray-400 tracking-widest uppercase mb-4">Pack smart. Travel smarter.</p>
                 </div>
 
-                <h2 className="text-4xl font-black text-gray-900 mb-4 font-display tracking-tight text-center lg:text-left">
+                <h2 className="text-3xl font-black text-gray-900 mb-2 font-display tracking-tight text-center lg:text-left">
                     {isLogin ? 'Welcome Back' : 'Get Started'}
                 </h2>
-                <p className="text-gray-400 text-lg font-medium mb-10 text-center lg:text-left">
+                <p className="text-gray-400 text-base font-medium mb-6 text-center lg:text-left">
                     {isLogin ? 'Enter your details to continue your adventure.' : 'Join the community of student explorers today.'}
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="group">
-                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">
                             {isLogin ? 'Email ID' : 'Account Username'}
                         </label>
                         <div className="relative">
                             {isLogin ? (
-                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={20} />
+                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={18} />
                             ) : (
-                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={20} />
+                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={18} />
                             )}
                             <input
                                 name="username"
@@ -228,7 +228,7 @@ function AuthPage({ isLogin = false }) {
                                 placeholder={isLogin ? "your email id" : "studio_explorer"}
                                 value={formData.username}
                                 onChange={handleInputChange}
-                                className="w-full pl-14 pr-5 py-5 rounded-[24px] bg-gray-50 border border-transparent focus:bg-white focus:border-primary-100 focus:ring-4 focus:ring-primary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm"
+                                className="w-full pl-12 pr-4 py-3 rounded-[20px] bg-gray-50 border border-transparent focus:bg-white focus:border-primary-100 focus:ring-4 focus:ring-primary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm text-sm"
                                 required
                             />
                         </div>
@@ -236,16 +236,16 @@ function AuthPage({ isLogin = false }) {
                     
                     {!isLogin && (
                         <div className="group">
-                            <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Email Address</label>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Email Address</label>
                             <div className="relative">
-                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={20} />
+                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={18} />
                                 <input
                                     name="email"
                                     type="email"
                                     placeholder="john@studio.edu"
                                     value={formData.email}
                                     onChange={handleInputChange}
-                                    className="w-full pl-14 pr-5 py-5 rounded-[24px] bg-gray-50 border border-transparent focus:bg-white focus:border-primary-100 focus:ring-4 focus:ring-primary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm"
+                                    className="w-full pl-12 pr-4 py-3 rounded-[20px] bg-gray-50 border border-transparent focus:bg-white focus:border-primary-100 focus:ring-4 focus:ring-primary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm text-sm"
                                     required
                                 />
                             </div>
@@ -253,16 +253,16 @@ function AuthPage({ isLogin = false }) {
                     )}
 
                     <div className="group">
-                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-3 ml-1">Password</label>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Password</label>
                         <div className="relative">
-                            <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-secondary-500 transition-colors" size={20} />
+                            <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-secondary-500 transition-colors" size={18} />
                             <input
                                 name="password"
                                 type="password"
                                 placeholder="••••••••"
                                 value={formData.password}
                                 onChange={handleInputChange}
-                                className="w-full pl-14 pr-5 py-5 rounded-[24px] bg-gray-50 border border-transparent focus:bg-white focus:border-secondary-100 focus:ring-4 focus:ring-secondary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm"
+                                className="w-full pl-12 pr-4 py-3 rounded-[20px] bg-gray-50 border border-transparent focus:bg-white focus:border-secondary-100 focus:ring-4 focus:ring-secondary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm text-sm"
                                 required
                             />
                         </div>
@@ -293,11 +293,11 @@ function AuthPage({ isLogin = false }) {
                         )}
                     </AnimatePresence>
 
-                    <div className="flex justify-end mb-2">
+                    <div className="flex justify-end mb-1">
                         {isLogin && (
                             <Link 
                                 to="/forgot-password" 
-                                className="text-[12px] font-black text-gray-400 uppercase tracking-widest hover:text-secondary-600 transition-colors mr-2"
+                                className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-secondary-600 transition-colors mr-2"
                             >
                                 Forgot Password?
                             </Link>
@@ -307,7 +307,7 @@ function AuthPage({ isLogin = false }) {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full py-6 text-white font-black text-lg rounded-[24px] shadow-2xl transition-all flex items-center justify-center gap-3 ${
+                        className={`w-full py-4 text-white font-black text-base rounded-[20px] shadow-2xl transition-all flex items-center justify-center gap-3 ${
                             loading 
                                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
                                 : 'bg-gradient-to-r from-primary-600 to-secondary-600 hover:scale-[1.02] active:scale-95 shadow-primary-600/30'
@@ -317,17 +317,17 @@ function AuthPage({ isLogin = false }) {
                             <motion.div 
                                 animate={{ rotate: 360 }}
                                 transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full"
+                                className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full"
                             ></motion.div>
                         ) : (
                             <>
                                 {isLogin ? 'Sign In' : 'Create Account'} 
-                                <ArrowRight size={20} />
+                                <ArrowRight size={18} />
                             </>
                         )}
                     </button>
                     
-                    <div className="mt-6 flex justify-center">
+                    <div className="mt-4 flex justify-center">
                         <GoogleLogin
                             onSuccess={async (credentialResponse) => {
                                 try {
@@ -372,13 +372,13 @@ function AuthPage({ isLogin = false }) {
                     </div>
                 </form>
 
-                <div className="mt-12 text-center">
+                <div className="mt-8 text-center">
                     <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">
                         {isLogin ? "New to BAGS UP?" : "Already a Member?"}
                     </p>
                     <Link 
                         to={isLogin ? "/register" : "/login"}
-                        className="inline-block mt-3 text-gray-900 font-black text-lg hover:text-primary-600 transition-colors group"
+                        className="inline-block mt-2 text-gray-900 font-black text-base hover:text-primary-600 transition-colors group"
                     >
                         {isLogin ? 'Sign up' : 'Sign in to Account'}
                         <div className="h-1 bg-primary-500 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
