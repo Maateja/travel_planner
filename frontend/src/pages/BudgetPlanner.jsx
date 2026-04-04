@@ -2,7 +2,6 @@ import React, { useState, useMemo, useEffect } from 'react';
 import api from '../api';
 import { 
   Bookmark, 
-  BookmarkCheck,
   Map as MapIcon, 
   List, 
   Search, 
@@ -384,7 +383,7 @@ function BudgetPlanner() {
                           className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 ${savedPlaceIds.includes(place.id) ? 'bg-primary-50 text-primary-500 shadow-sm' : 'bg-gray-50 text-gray-300 hover:text-primary-400 hover:bg-primary-50/50'}`}
                           title={savedPlaceIds.includes(place.id) ? 'Remove from saved' : 'Save place'}
                         >
-                          {savedPlaceIds.includes(place.id) ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
+                          <Bookmark size={18} fill={savedPlaceIds.includes(place.id) ? 'currentColor' : 'none'} />
                         </button>
                       </div>
                       <p className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-2">
@@ -417,7 +416,7 @@ function BudgetPlanner() {
             <div className="space-y-6 pb-20">
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-3">
-                  <BookmarkCheck size={24} className="text-primary-500" /> Your Saved Places
+                  <Bookmark size={24} className="text-primary-500" fill="currentColor" /> Your Saved Places
                   <span className="bg-primary-100 text-primary-600 text-xs font-black px-3 py-1 rounded-full">{savedItems.length}</span>
                 </h3>
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
@@ -436,7 +435,7 @@ function BudgetPlanner() {
                     <div className="h-48 bg-gray-50 rounded-[32px] flex items-center justify-center text-6xl relative overflow-hidden mb-6">
                       {place.image?.startsWith("http") ? <img src={place.image} alt={place.name} className="w-full h-full object-cover rounded-[32px] group-hover:scale-110 transition-transform duration-700" /> : <span>{place.image}</span>}
                       <div className="absolute top-4 right-4 bg-primary-500 text-white p-2 rounded-full shadow-lg">
-                        <BookmarkCheck size={16} />
+                        <Bookmark size={16} fill="currentColor" />
                       </div>
                     </div>
                     <div className="px-4 pb-4 space-y-4">
