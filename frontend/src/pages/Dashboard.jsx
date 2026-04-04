@@ -152,10 +152,8 @@ function Dashboard() {
     })
     .sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
 
-  // If no future trips, take the absolute last one (most recently added/started)
-  const upcomingTrip = futureTrips.length > 0 
-    ? futureTrips[0] 
-    : [...validTrips].sort((a, b) => new Date(b.createdAt || b.start_date) - new Date(a.createdAt || a.start_date))[0];
+  // Only show a trip as "upcoming" if it hasn't ended yet
+  const upcomingTrip = futureTrips.length > 0 ? futureTrips[0] : null;
 
   const totalBudgetSpent = validTrips
     .filter(t => {
