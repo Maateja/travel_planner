@@ -114,28 +114,15 @@ function AuthPage({ isLogin = false }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-white"
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-gray-900"
     >
-      {/* Dynamic Animated Background */}
-      <div className="absolute inset-0 z-0">
-          <motion.div 
-            animate={{ 
-                scale: [1, 1.2, 1],
-                x: [0, 50, 0],
-                y: [0, 30, 0]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-[10%] -left-[10%] w-[60%] h-[60%] bg-primary-100/50 rounded-full blur-[120px]"
-          ></motion.div>
-          <motion.div 
-            animate={{ 
-                scale: [1.2, 1, 1.2],
-                x: [0, -50, 0],
-                y: [0, -30, 0]
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-[10%] -right-[10%] w-[60%] h-[60%] bg-secondary-100/50 rounded-full blur-[120px]"
-          ></motion.div>
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/auth-bg.jpg)' }}
+      >
+        {/* Overlay to ensure text readability */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
       </div>
 
       <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
@@ -149,12 +136,12 @@ function AuthPage({ isLogin = false }) {
                 className="mb-12"
             >
                 <div className="flex items-center gap-6 mb-4">
-                    <img src="/logo.png" alt="BAGS UP Logo" className="w-32 h-32 object-contain" />
-                    <h1 className="text-6xl font-black text-gray-900 tracking-tighter uppercase font-display">
+                    <img src="/logo.png" alt="BAGS UP Logo" className="w-32 h-32 object-contain drop-shadow-2xl" />
+                    <h1 className="text-6xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">
                         BAGS UP
                     </h1>
                 </div>
-                <p className="text-2xl font-black text-gray-400 uppercase tracking-[0.3em] ml-2">
+                <p className="text-2xl font-black text-gray-100 uppercase tracking-[0.3em] ml-2 drop-shadow-md">
                     Pack smart. Travel smarter.
                 </p>
             </motion.div>
@@ -165,23 +152,23 @@ function AuthPage({ isLogin = false }) {
                 transition={{ delay: 0.4 }}
                 className="space-y-8"
             >
-                <div className="flex items-center gap-6 p-6 rounded-[32px] bg-white shadow-xl shadow-gray-200/50 border border-gray-100 hover:shadow-2xl transition-all group">
-                    <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center text-primary-500 group-hover:scale-110 transition-transform">
+                <div className="flex items-center gap-6 p-6 rounded-[32px] bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/20 transition-all group">
+                    <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                         <Globe size={32} />
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-gray-800">Global Exploration</h3>
-                        <p className="text-gray-400 font-medium">Discover hidden gems across India and beyond.</p>
+                        <h3 className="text-xl font-black text-white">Global Exploration</h3>
+                        <p className="text-gray-200 font-medium">Discover hidden gems across India and beyond.</p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6 p-6 rounded-[32px] bg-white shadow-xl shadow-gray-200/50 border border-gray-100 hover:shadow-2xl transition-all group">
-                    <div className="w-16 h-16 rounded-2xl bg-secondary-50 flex items-center justify-center text-secondary-500 group-hover:scale-110 transition-transform">
+                <div className="flex items-center gap-6 p-6 rounded-[32px] bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/20 transition-all group">
+                    <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
                         <Sparkles size={32} />
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-gray-800">AI Intelligence</h3>
-                        <p className="text-gray-400 font-medium">Personalized roadmaps built for your budget.</p>
+                        <h3 className="text-xl font-black text-white">AI Intelligence</h3>
+                        <p className="text-gray-200 font-medium">Personalized roadmaps built for your budget.</p>
                     </div>
                 </div>
             </motion.div>
@@ -193,7 +180,7 @@ function AuthPage({ isLogin = false }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="w-full max-w-lg mx-auto bg-white rounded-[32px] shadow-2xl shadow-gray-300/50 border border-gray-100 p-8 lg:p-10 relative overflow-hidden"
+            className="w-full max-w-lg mx-auto bg-white/95 backdrop-blur-xl rounded-[32px] shadow-2xl shadow-black/20 border border-white/30 p-8 lg:p-10 relative overflow-hidden"
         >
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-bl-full -z-0 opacity-50"></div>
             
