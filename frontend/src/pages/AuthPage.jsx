@@ -135,7 +135,7 @@ function AuthPage({ isLogin = false }) {
                 transition={{ delay: 0.2 }}
                 className="mb-12"
             >
-                <div className="flex items-center gap-6 mb-4">
+                <div className="flex items-center gap-1 mb-2">
                     <img src="/logo.png" alt="BAGS UP Logo" className="w-32 h-32 object-contain drop-shadow-2xl" />
                     <h1 className="text-6xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">
                         BAGS UP
