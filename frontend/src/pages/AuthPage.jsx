@@ -175,10 +175,10 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             className="flex flex-col items-center justify-center text-center px-4 mt-16"
           >
             <p className="text-3xl md:text-5xl lg:text-6xl font-black text-gray-100 uppercase tracking-[0.2em] drop-shadow-lg whitespace-nowrap">
-              Pack smart. Travel smarter.
+              Escape the Ordinary, Embrace the Extraordinary.
             </p>
             <p className="mt-8 text-xl text-gray-200 font-medium max-w-2xl drop-shadow">
-              Discover hidden gems, plan personalized trips, and explore the world — all in one place.
+              Discover hidden gems, plan personalized trips, and explore the world with AI.
             </p>
             <Link
               to="/login"
@@ -202,7 +202,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             
             <div className="relative z-10">
                 <div className="text-center mb-4 lg:hidden flex flex-col items-center">
-                    <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-3">Pack smart. Travel smarter.</p>
+                    <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-3">Escape the Ordinary, Embrace the Extraordinary.</p>
                 </div>
 
                 <h2 className="text-2xl lg:text-3xl font-black text-white mb-2 font-display tracking-tight text-center">
