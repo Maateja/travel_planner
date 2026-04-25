@@ -40,7 +40,7 @@ const AnimatedRoutes = () => {
           <Route path="/trip/:id" element={<ProtectedRoute><MainLayout><TripDetails /></MainLayout></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><MainLayout><ProfilePage /></MainLayout></ProtectedRoute>} />
           
-          <Route path="/" element={<AuthPage isLogin={false} />} />
+          <Route path="/" element={<AuthPage isLanding={true} />} />
         </Routes>
       </AnimatePresence>
     </ErrorBoundary>

@@ -5,7 +5,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-function AuthPage({ isLogin = false }) {
+function AuthPage({ isLogin = false, isLanding = false }) {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -122,16 +122,14 @@ function AuthPage({ isLogin = false }) {
         style={{ backgroundImage: 'url(/auth-bg.jpg)' }}
       >
         {/* Overlay to ensure text readability */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
       {/* Top Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
         {/* Left: Logo + Name */}
         <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center overflow-hidden shadow-xl">
-            <img src="/logo.png" alt="BAGS UP Logo" className="w-16 h-16 object-contain" />
-          </div>
+          <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
           <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
         {/* Right: Login Button */}
@@ -146,8 +144,8 @@ function AuthPage({ isLogin = false }) {
       <div className="w-full relative z-10 flex flex-col items-center justify-center min-h-[70vh]">
         
         {/* Left Side / Hero: Branding */}
-        {!isLogin ? (
-          /* Landing Hero — shown when NOT on login page */
+        {isLanding && (
+          /* Landing Hero — shown when on landing page */
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -167,10 +165,10 @@ function AuthPage({ isLogin = false }) {
               Get Started →
             </Link>
           </motion.div>
-        ) : null}
+        )}
 
-        {/* Right Side: Auth Form — only visible on /login */}
-        {isLogin && (
+        {/* Right Side: Auth Form — hidden on landing page */}
+        {!isLanding && (
         <motion.div 
             variants={containerVariants}
             initial="initial"
