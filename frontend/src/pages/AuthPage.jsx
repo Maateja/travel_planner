@@ -128,7 +128,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
       {/* Top Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
         {/* Left: Logo + Name */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0">
           <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
           <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
@@ -155,7 +155,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             <p className="text-2xl md:text-4xl lg:text-[2.75rem] font-black text-gray-100 uppercase tracking-wider drop-shadow-lg whitespace-nowrap leading-tight">
               Escape the Ordinary, Embrace the Extraordinary.
             </p>
-            <p className="mt-10 text-lg md:text-xl lg:text-2xl text-gray-200 font-medium drop-shadow whitespace-nowrap">
+            <p className="mt-2 text-lg md:text-xl lg:text-2xl text-gray-200 font-medium drop-shadow whitespace-nowrap">
               Discover hidden gems, plan personalized trips, and explore the world with AI.
             </p>
             <Link

@@ -51,7 +51,7 @@ const Header = ({ toggleSidebar }) => {
             />
             <div className="flex flex-col">
               <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter uppercase leading-none">BAGS UP</h1>
-              <p className="text-[11px] md:text-xs font-bold text-primary-600 uppercase tracking-[0.2em] mt-1.0 opacity-80 decoration-primary-500/30">Escape the Ordinary, Embrace the Extraordinary.</p>
+              <p className="text-[11px] md:text-xs font-bold text-primary-600 uppercase tracking-[0.2em] mt-1.5 opacity-80 decoration-primary-500/30">Escape the Ordinary, Embrace the Extraordinary.</p>
             </div>
           </Link>
         </div>
