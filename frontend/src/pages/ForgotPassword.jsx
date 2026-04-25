@@ -143,6 +143,7 @@ function ForgotPassword() {
                 <div className="mt-6 text-center">
                     <Link 
                         to="/login"
+                        replace
                         className="inline-flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-white transition-colors group"
                     >
                         <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back to Sign In

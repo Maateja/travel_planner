@@ -186,7 +186,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                 </div>
 
                 <h2 className="text-2xl lg:text-3xl font-black text-white mb-2 font-display tracking-tight text-center">
-                    {isLogin ? 'Welcome Back' : 'Get Started'}
+                    {isLogin ? 'Welcome' : 'Get Started'}
                 </h2>
                 <p className="text-gray-300 text-xs lg:text-sm font-medium mb-6 text-center">
                     {isLogin ? 'Enter your details to continue your adventure.' : 'Plan your adventure today by signing up.'}
@@ -359,6 +359,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                     </p>
                     <Link 
                         to={isLogin ? "/register" : "/login"}
+                        replace
                         className="inline-block mt-1 text-white font-black text-base hover:text-yellow-300 transition-colors group"
                     >
                         {isLogin ? "Sign up" : "Sign in"}
