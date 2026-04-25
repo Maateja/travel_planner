@@ -22,7 +22,7 @@ function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Welcome Back</h2>
+        <h2>Welcome</h2>
         <form onSubmit={handleSubmit}>
           <input
             type="text"

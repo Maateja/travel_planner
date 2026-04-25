@@ -133,12 +133,14 @@ function AuthPage({ isLogin = false, isLanding = false }) {
           <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
         {/* Right: Login Button */}
-        <Link
-          to="/login"
-          className="px-10 py-3 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
-        >
-          Login
-        </Link>
+        {isLanding && (
+          <Link
+            to="/login"
+            className="px-10 py-3 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+          >
+            Login
+          </Link>
+        )}
       </div>
 
       <div className="w-full relative z-10 flex flex-col items-center justify-center min-h-[70vh]">
@@ -187,7 +189,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                     {isLogin ? 'Welcome Back' : 'Get Started'}
                 </h2>
                 <p className="text-gray-300 text-xs lg:text-sm font-medium mb-6 text-center">
-                    {isLogin ? 'Enter your details to continue your adventure.' : 'Join the community of student explorers today.'}
+                    {isLogin ? 'Enter your details to continue your adventure.' : 'Plan your adventure today by signing up.'}
                 </p>
 
                 <form onSubmit={handleSubmit} className="space-y-3">
@@ -352,14 +354,14 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                 </form>
 
                 <div className="mt-4 text-center">
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[9px]">
-                        New to BAGS UP?
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
+                        {isLogin ? "New to BAGS UP?" : "Already have an account?"}
                     </p>
                     <Link 
-                        to="/register"
-                        className="inline-block mt-1 text-white font-black text-xs hover:text-yellow-300 transition-colors group"
+                        to={isLogin ? "/register" : "/login"}
+                        className="inline-block mt-1 text-white font-black text-base hover:text-yellow-300 transition-colors group"
                     >
-                        Sign up
+                        {isLogin ? "Sign up" : "Sign in"}
                         <div className="h-0.5 bg-yellow-400 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
                     </Link>
                 </div>
