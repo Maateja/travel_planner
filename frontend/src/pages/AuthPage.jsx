@@ -129,10 +129,10 @@ function AuthPage({ isLogin = false }) {
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
         {/* Left: Logo + Name */}
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center overflow-hidden shadow-xl">
-            <img src="/logo.png" alt="BAGS UP Logo" className="w-12 h-12 object-contain" />
+          <div className="w-20 h-20 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center overflow-hidden shadow-xl">
+            <img src="/logo.png" alt="BAGS UP Logo" className="w-16 h-16 object-contain" />
           </div>
-          <span className="text-3xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
+          <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
         {/* Right: Login Button */}
         <Link
@@ -143,7 +143,7 @@ function AuthPage({ isLogin = false }) {
         </Link>
       </div>
 
-      <div className={`w-full relative z-10 ${ isLogin ? 'max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center' : 'flex flex-col items-center justify-center text-center min-h-[70vh]' }`}>
+      <div className="w-full relative z-10 flex flex-col items-center justify-center min-h-[70vh]">
         
         {/* Left Side / Hero: Branding */}
         {!isLogin ? (
@@ -152,39 +152,22 @@ function AuthPage({ isLogin = false }) {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.7 }}
-            className="flex flex-col items-center justify-center text-center px-4"
+            className="flex flex-col items-center justify-center text-center px-4 mt-16"
           >
-            <p className="text-3xl md:text-4xl font-black text-gray-100 uppercase tracking-[0.3em] drop-shadow-md">
+            <p className="text-3xl md:text-5xl lg:text-6xl font-black text-gray-100 uppercase tracking-[0.2em] drop-shadow-lg whitespace-nowrap">
               Pack smart. Travel smarter.
             </p>
-            <p className="mt-6 text-lg text-gray-300 font-medium max-w-lg">
+            <p className="mt-8 text-xl text-gray-200 font-medium max-w-2xl drop-shadow">
               Discover hidden gems, plan personalized trips, and explore the world — all in one place.
             </p>
             <Link
               to="/login"
-              className="mt-10 px-12 py-4 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-base uppercase tracking-wider shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+              className="mt-12 px-14 py-4 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-lg uppercase tracking-wider shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
             >
               Get Started →
             </Link>
           </motion.div>
-        ) : (
-          /* Left branding column — shown on login page */
-          <div className="hidden lg:flex flex-col justify-center">
-            <motion.div
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="mb-12"
-            >
-              <p className="text-3xl font-black text-gray-100 uppercase tracking-[0.3em] drop-shadow-md">
-                Pack smart. Travel smarter.
-              </p>
-              <p className="mt-4 text-lg text-gray-300 font-medium max-w-md">
-                Your personal travel companion — AI-powered, budget-smart, adventure-ready.
-              </p>
-            </motion.div>
-          </div>
-        )}
+        ) : null}
 
         {/* Right Side: Auth Form — only visible on /login */}
         {isLogin && (
@@ -193,32 +176,32 @@ function AuthPage({ isLogin = false }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="w-full max-w-lg mx-auto bg-white/95 backdrop-blur-xl rounded-[32px] shadow-2xl shadow-black/20 border border-white/30 p-8 lg:p-10 relative overflow-hidden"
+            className="w-full max-w-lg mx-auto bg-black/40 backdrop-blur-xl rounded-[32px] shadow-2xl border border-white/20 p-8 lg:p-10 relative overflow-hidden mt-16"
         >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-50 rounded-bl-full -z-0 opacity-50"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-500 rounded-bl-full -z-0 opacity-20 blur-2xl"></div>
             
             <div className="relative z-10">
                 <div className="text-center mb-6 lg:hidden flex flex-col items-center">
-                    <p className="text-xs font-black text-gray-400 tracking-widest uppercase mb-4">Pack smart. Travel smarter.</p>
+                    <p className="text-xs font-black text-gray-300 tracking-widest uppercase mb-4">Pack smart. Travel smarter.</p>
                 </div>
 
-                <h2 className="text-3xl font-black text-gray-900 mb-2 font-display tracking-tight text-center lg:text-left">
+                <h2 className="text-3xl font-black text-white mb-2 font-display tracking-tight text-center">
                     {isLogin ? 'Welcome Back' : 'Get Started'}
                 </h2>
-                <p className="text-gray-400 text-base font-medium mb-6 text-center lg:text-left">
+                <p className="text-gray-300 text-base font-medium mb-8 text-center">
                     {isLogin ? 'Enter your details to continue your adventure.' : 'Join the community of student explorers today.'}
                 </p>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="group">
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">
+                        <label className="block text-xs font-black text-gray-300 uppercase tracking-widest mb-2 ml-1">
                             {isLogin ? 'Email ID' : 'Account Username'}
                         </label>
                         <div className="relative">
                             {isLogin ? (
-                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={18} />
+                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={18} />
                             ) : (
-                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={18} />
+                                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={18} />
                             )}
                             <input
                                 name="username"
@@ -226,7 +209,7 @@ function AuthPage({ isLogin = false }) {
                                 placeholder={isLogin ? "your email id" : "studio_explorer"}
                                 value={formData.username}
                                 onChange={handleInputChange}
-                                className="w-full pl-12 pr-4 py-3 rounded-[20px] bg-gray-50 border border-transparent focus:bg-white focus:border-primary-100 focus:ring-4 focus:ring-primary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm text-sm"
+                                className="w-full pl-12 pr-4 py-4 rounded-[20px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
                                 required
                             />
                         </div>
@@ -234,16 +217,16 @@ function AuthPage({ isLogin = false }) {
                     
                     {!isLogin && (
                         <div className="group">
-                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Email Address</label>
+                            <label className="block text-xs font-black text-gray-300 uppercase tracking-widest mb-2 ml-1">Email Address</label>
                             <div className="relative">
-                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-primary-500 transition-colors" size={18} />
+                                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={18} />
                                 <input
                                     name="email"
                                     type="email"
                                     placeholder="john@studio.edu"
                                     value={formData.email}
                                     onChange={handleInputChange}
-                                    className="w-full pl-12 pr-4 py-3 rounded-[20px] bg-gray-50 border border-transparent focus:bg-white focus:border-primary-100 focus:ring-4 focus:ring-primary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm text-sm"
+                                    className="w-full pl-12 pr-4 py-4 rounded-[20px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
                                     required
                                 />
                             </div>
@@ -251,16 +234,16 @@ function AuthPage({ isLogin = false }) {
                     )}
 
                     <div className="group">
-                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Password</label>
+                        <label className="block text-xs font-black text-gray-300 uppercase tracking-widest mb-2 ml-1">Password</label>
                         <div className="relative">
-                            <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-secondary-500 transition-colors" size={18} />
+                            <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={18} />
                             <input
                                 name="password"
                                 type="password"
                                 placeholder="••••••••"
                                 value={formData.password}
                                 onChange={handleInputChange}
-                                className="w-full pl-12 pr-4 py-3 rounded-[20px] bg-gray-50 border border-transparent focus:bg-white focus:border-secondary-100 focus:ring-4 focus:ring-secondary-500/5 transition-all outline-none font-bold text-gray-900 placeholder:text-gray-300 shadow-sm text-sm"
+                                className="w-full pl-12 pr-4 py-4 rounded-[20px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
                                 required
                             />
                         </div>
@@ -291,11 +274,11 @@ function AuthPage({ isLogin = false }) {
                         )}
                     </AnimatePresence>
 
-                    <div className="flex justify-end mb-1">
+                    <div className="flex justify-end mb-2">
                         {isLogin && (
                             <Link 
                                 to="/forgot-password" 
-                                className="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-secondary-600 transition-colors mr-2"
+                                className="text-xs font-black text-gray-300 uppercase tracking-widest hover:text-white transition-colors mr-2"
                             >
                                 Forgot Password?
                             </Link>
@@ -371,15 +354,15 @@ function AuthPage({ isLogin = false }) {
                 </form>
 
                 <div className="mt-8 text-center">
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">
                         New to BAGS UP?
                     </p>
                     <Link 
                         to="/register"
-                        className="inline-block mt-2 text-gray-900 font-black text-base hover:text-primary-600 transition-colors group"
+                        className="inline-block mt-2 text-white font-black text-lg hover:text-yellow-300 transition-colors group"
                     >
                         Sign up
-                        <div className="h-1 bg-primary-500 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
+                        <div className="h-1 bg-yellow-400 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
                     </Link>
                 </div>
             </div>
