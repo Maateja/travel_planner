@@ -14,17 +14,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
-  const [showPageLoader, setShowPageLoader] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // When navigating to Login or Register, show the loader briefly
-    if (!isLanding) {
-      setShowPageLoader(true);
-      const timer = setTimeout(() => setShowPageLoader(false), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLanding, isLogin]);
 
   useEffect(() => {
     // Ping the backend to wake it up from cold sleep (e.g. Render free tier)
@@ -119,15 +109,6 @@ function AuthPage({ isLogin = false, isLanding = false }) {
     exit: { opacity: 0, scale: 1.05 }
   };
 
-  // The overlay component
-  const VideoLoader = () => (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <video autoPlay loop muted playsInline style={{ width: '256px', height: '256px', objectFit: 'contain' }}>
-            <source src="/Loading Animation.mp4" type="video/mp4" />
-        </video>
-    </div>
-  );
-
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -135,9 +116,6 @@ function AuthPage({ isLogin = false, isLanding = false }) {
       exit={{ opacity: 0 }}
       className="min-h-screen flex items-center justify-center p-6 pt-24 relative overflow-hidden bg-gray-900"
     >
-      {/* Video Loader Overlay */}
-      { (showPageLoader || loading) && <VideoLoader /> }
-
       {/* Background Image */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
@@ -150,7 +128,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
       {/* Top Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
         {/* Left: Logo + Name */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
           <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
@@ -174,10 +152,10 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             transition={{ delay: 0.2, duration: 0.7 }}
             className="flex flex-col items-center justify-center text-center px-4 mt-16"
           >
-            <p className="text-xl md:text-3xl lg:text-4xl font-black text-gray-100 uppercase tracking-wider drop-shadow-lg whitespace-nowrap">
+            <p className="text-2xl md:text-4xl lg:text-[2.75rem] font-black text-gray-100 uppercase tracking-wider drop-shadow-lg whitespace-nowrap leading-tight">
               Escape the Ordinary, Embrace the Extraordinary.
             </p>
-            <p className="mt-8 text-lg md:text-xl text-gray-200 font-medium drop-shadow whitespace-nowrap">
+            <p className="mt-10 text-lg md:text-xl lg:text-2xl text-gray-200 font-medium drop-shadow whitespace-nowrap">
               Discover hidden gems, plan personalized trips, and explore the world with AI.
             </p>
             <Link
