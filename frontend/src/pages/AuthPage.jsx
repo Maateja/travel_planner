@@ -114,7 +114,7 @@ function AuthPage({ isLogin = false }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-gray-900"
+      className="min-h-screen flex items-center justify-center p-6 pt-24 relative overflow-hidden bg-gray-900"
     >
       {/* Background Image */}
       <div 
@@ -125,56 +125,69 @@ function AuthPage({ isLogin = false }) {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
       </div>
 
-      <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
-        
-        {/* Left Side: Branding/Visuals */}
-        <div className="hidden lg:flex flex-col justify-center">
-            <motion.div 
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="mb-12"
-            >
-                <div className="flex items-center gap-1 mb-2">
-                    <img src="/logo.png" alt="BAGS UP Logo" className="w-32 h-32 object-contain drop-shadow-2xl" />
-                    <h1 className="text-6xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">
-                        BAGS UP
-                    </h1>
-                </div>
-                <p className="text-2xl font-black text-gray-100 uppercase tracking-[0.3em] ml-2 drop-shadow-md">
-                    Pack smart. Travel smarter.
-                </p>
-            </motion.div>
-
-            <motion.div 
-                initial={{ y: 50, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4 }}
-                className="space-y-8"
-            >
-                <div className="flex items-center gap-6 p-6 rounded-[32px] bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/20 transition-all group">
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                        <Globe size={32} />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black text-white">Global Exploration</h3>
-                        <p className="text-gray-200 font-medium">Discover hidden gems across India and beyond.</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-6 p-6 rounded-[32px] bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl hover:bg-white/20 transition-all group">
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                        <Sparkles size={32} />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black text-white">AI Intelligence</h3>
-                        <p className="text-gray-200 font-medium">Personalized roadmaps built for your budget.</p>
-                    </div>
-                </div>
-            </motion.div>
+      {/* Top Navigation Bar */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
+        {/* Left: Logo + Name */}
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md border border-white/25 flex items-center justify-center overflow-hidden shadow-xl">
+            <img src="/logo.png" alt="BAGS UP Logo" className="w-12 h-12 object-contain" />
+          </div>
+          <span className="text-3xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
+        {/* Right: Login Button */}
+        <Link
+          to="/login"
+          className="px-10 py-3 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+        >
+          Login
+        </Link>
+      </div>
 
-        {/* Right Side: Auth Form */}
+      <div className={`w-full relative z-10 ${ isLogin ? 'max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center' : 'flex flex-col items-center justify-center text-center min-h-[70vh]' }`}>
+        
+        {/* Left Side / Hero: Branding */}
+        {!isLogin ? (
+          /* Landing Hero — shown when NOT on login page */
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.7 }}
+            className="flex flex-col items-center justify-center text-center px-4"
+          >
+            <p className="text-3xl md:text-4xl font-black text-gray-100 uppercase tracking-[0.3em] drop-shadow-md">
+              Pack smart. Travel smarter.
+            </p>
+            <p className="mt-6 text-lg text-gray-300 font-medium max-w-lg">
+              Discover hidden gems, plan personalized trips, and explore the world — all in one place.
+            </p>
+            <Link
+              to="/login"
+              className="mt-10 px-12 py-4 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-base uppercase tracking-wider shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
+            >
+              Get Started →
+            </Link>
+          </motion.div>
+        ) : (
+          /* Left branding column — shown on login page */
+          <div className="hidden lg:flex flex-col justify-center">
+            <motion.div
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="mb-12"
+            >
+              <p className="text-3xl font-black text-gray-100 uppercase tracking-[0.3em] drop-shadow-md">
+                Pack smart. Travel smarter.
+              </p>
+              <p className="mt-4 text-lg text-gray-300 font-medium max-w-md">
+                Your personal travel companion — AI-powered, budget-smart, adventure-ready.
+              </p>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Right Side: Auth Form — only visible on /login */}
+        {isLogin && (
         <motion.div 
             variants={containerVariants}
             initial="initial"
@@ -186,8 +199,6 @@ function AuthPage({ isLogin = false }) {
             
             <div className="relative z-10">
                 <div className="text-center mb-6 lg:hidden flex flex-col items-center">
-                    <img src="/logo.png" alt="BAGS UP Logo" className="w-16 h-16 mb-2 object-contain" />
-                    <h1 className="text-3xl font-black text-gray-900 mb-1 font-display tracking-tighter uppercase">BAGS UP</h1>
                     <p className="text-xs font-black text-gray-400 tracking-widest uppercase mb-4">Pack smart. Travel smarter.</p>
                 </div>
 
@@ -361,18 +372,19 @@ function AuthPage({ isLogin = false }) {
 
                 <div className="mt-8 text-center">
                     <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">
-                        {isLogin ? "New to BAGS UP?" : "Already a Member?"}
+                        New to BAGS UP?
                     </p>
                     <Link 
-                        to={isLogin ? "/register" : "/login"}
+                        to="/register"
                         className="inline-block mt-2 text-gray-900 font-black text-base hover:text-primary-600 transition-colors group"
                     >
-                        {isLogin ? 'Sign up' : 'Sign in to Account'}
+                        Sign up
                         <div className="h-1 bg-primary-500 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
                     </Link>
                 </div>
             </div>
         </motion.div>
+        )}
       </div>
     </motion.div>
   );
