@@ -174,10 +174,10 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             transition={{ delay: 0.2, duration: 0.7 }}
             className="flex flex-col items-center justify-center text-center px-4 mt-16"
           >
-            <p className="text-3xl md:text-5xl lg:text-6xl font-black text-gray-100 uppercase tracking-[0.2em] drop-shadow-lg whitespace-nowrap">
+            <p className="text-xl md:text-3xl lg:text-4xl font-black text-gray-100 uppercase tracking-wider drop-shadow-lg whitespace-nowrap">
               Escape the Ordinary, Embrace the Extraordinary.
             </p>
-            <p className="mt-8 text-xl text-gray-200 font-medium max-w-2xl drop-shadow">
+            <p className="mt-8 text-lg md:text-xl text-gray-200 font-medium drop-shadow whitespace-nowrap">
               Discover hidden gems, plan personalized trips, and explore the world with AI.
             </p>
             <Link
