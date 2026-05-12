@@ -47,7 +47,7 @@ app.listen(PORT, () => {
             .catch(err => {
                 console.error('❌ MongoDB connection error:', err.message || err);
                 console.log('--- Database Connection Failed ---');
-                console.log('Please check your password in server/.env');
+                console.log('Please check your password in .env');
             });
     }
 });

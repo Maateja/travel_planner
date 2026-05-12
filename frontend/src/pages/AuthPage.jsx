@@ -132,15 +132,6 @@ function AuthPage({ isLogin = false, isLanding = false }) {
           <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
           <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
         </div>
-        {/* Right: Login Button */}
-        {isLanding && (
-          <Link
-            to="/login"
-            className="px-10 py-3 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
-          >
-            Login
-          </Link>
-        )}
       </div>
 
       <div className="w-full relative z-10 flex flex-col items-center justify-center min-h-[70vh]">

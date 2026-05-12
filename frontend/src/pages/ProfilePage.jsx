@@ -75,7 +75,7 @@ const ProfilePage = () => {
 
   const handleLogout = () => {
     sessionStorage.clear();
-    navigate('/login');
+    navigate('/');
   };
 
   return (

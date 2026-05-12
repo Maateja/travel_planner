@@ -4,7 +4,7 @@ import { Navigate } from 'react-router-dom';
 function ProtectedRoute({ children }) {
   const token = sessionStorage.getItem('access_token');
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/" replace />;
   }
   return children;
 }

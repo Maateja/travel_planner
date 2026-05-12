@@ -12,7 +12,7 @@ const UserMenu = () => {
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('user_data');
     sessionStorage.clear(); // Clear temporary roadmap and other session states
-    navigate('/login');
+    navigate('/');
   };
 
   const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');

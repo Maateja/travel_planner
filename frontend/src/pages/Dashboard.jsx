@@ -88,6 +88,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('Explorer');
   const [temporaryRoadmap, setTemporaryRoadmap] = useState(null);
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const navigate = useNavigate();
   const cardRef = useRef(null);
 
@@ -125,7 +126,7 @@ function Dashboard() {
     } catch (error) {
       console.error('Error fetching trips:', error);
       if (error.response && error.response.status === 401) {
-        navigate('/login');
+        navigate('/');
       }
     } finally {
       setLoading(false); 
@@ -410,9 +411,12 @@ function Dashboard() {
                   </div>
                   <h4 className="text-xl font-black text-gray-900 uppercase">No Trips Planned Yet</h4>
                   <p className="text-gray-500 text-sm mt-3 font-medium max-w-xs">Start your journey today and let AI help you discover amazing places in India.</p>
-                  <Link to="/create-trip" className="mt-8 text-primary-600 font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all">
+                  <button 
+                    onClick={() => setIsPlanModalOpen(true)}
+                    className="mt-8 text-primary-600 font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:gap-4 transition-all"
+                  >
                     Plan Your First Adventure <ArrowRight size={16} />
-                  </Link>
+                  </button>
                 </div>
               )}
             </section>
@@ -500,6 +504,83 @@ function Dashboard() {
           </div>
         </div>
       </motion.div>
+
+      {/* Plan Choice Modal */}
+      <AnimatePresence>
+        {isPlanModalOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsPlanModalOpen(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[2000] flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-white rounded-[40px] p-8 md:p-12 max-w-2xl w-full shadow-2xl relative overflow-hidden"
+              >
+                {/* Background Accents */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-primary-100 rounded-bl-full opacity-50 -z-10"></div>
+                <div className="absolute bottom-0 left-0 w-24 h-24 bg-secondary-100 rounded-tr-full opacity-50 -z-10"></div>
+
+                <div className="text-center mb-10">
+                  <h3 className="text-3xl md:text-4xl font-black text-gray-900 uppercase tracking-tighter mb-4">
+                    How would you like to plan?
+                  </h3>
+                  <p className="text-gray-500 font-medium">Choose your preferred way to create your next adventure.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* AI Plan */}
+                  <button
+                    onClick={() => {
+                        setIsPlanModalOpen(false);
+                        navigate('/create-trip');
+                    }}
+                    className="group relative bg-white border-2 border-gray-100 p-8 rounded-[32px] text-left hover:border-primary-500 transition-all duration-300 hover:-translate-y-2 shadow-sm hover:shadow-xl hover:shadow-primary-500/10"
+                  >
+                    <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2">Plan with AI</h4>
+                    <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                      Let our intelligent AI craft a personalized itinerary for you in seconds.
+                    </p>
+                    <div className="mt-6 flex items-center gap-2 text-xs font-black text-primary-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                      Get Started <ArrowRight size={14} />
+                    </div>
+                  </button>
+
+                  {/* Manual Plan */}
+                  <button
+                    onClick={() => {
+                        setIsPlanModalOpen(false);
+                        navigate('/manual-plan');
+                    }}
+                    className="group relative bg-white border-2 border-gray-100 p-8 rounded-[32px] text-left hover:border-secondary-500 transition-all duration-300 hover:-translate-y-2 shadow-sm hover:shadow-xl hover:shadow-secondary-500/10"
+                  >
+                    <h4 className="text-xl font-black text-gray-900 uppercase tracking-tight mb-2">Plan Myself</h4>
+                    <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                      Take full control and build your dream trip exactly how you want it.
+                    </p>
+                    <div className="mt-6 flex items-center gap-2 text-xs font-black text-secondary-600 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+                      Create Manual <ArrowRight size={14} />
+                    </div>
+                  </button>
+                </div>
+
+                <button 
+                  onClick={() => setIsPlanModalOpen(false)}
+                  className="mt-10 w-full py-4 text-gray-400 font-black text-xs uppercase tracking-[0.2em] hover:text-gray-600 transition-colors"
+                >
+                  Maybe Later
+                </button>
+              </motion.div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

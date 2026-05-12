@@ -25,7 +25,7 @@ const Header = ({ toggleSidebar }) => {
     sessionStorage.removeItem('access_token');
     sessionStorage.removeItem('refresh_token');
     sessionStorage.removeItem('user_data');
-    navigate('/login');
+    navigate('/');
     setIsProfileOpen(false);
   };
 
