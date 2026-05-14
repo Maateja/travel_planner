@@ -8,6 +8,7 @@
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:frontend\"",
     "build:server": "tsc -p server/tsconfig.json",
     "build:frontend": "vite build frontend",
+    "build": "npm run build:frontend",
     "seed": "tsx server/src/seedDestinations.ts",
     "lint": "eslint frontend/src server/src",
     "start": "node server/dist/index.js",
