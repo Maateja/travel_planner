@@ -4,6 +4,7 @@ import api from '../api';
 import { GoogleLogin } from '@react-oauth/google';
 import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function AuthPage({ isLogin = false, isLanding = false }) {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     // Ping the backend to wake it up from cold sleep (e.g. Render free tier)
@@ -40,6 +42,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    showLoading();
     setError(null);
     setSuccessMsg(null);
     try {
@@ -100,6 +103,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
       }
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 
@@ -304,6 +308,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                             onSuccess={async (credentialResponse) => {
                                 try {
                                     setLoading(true);
+                                    showLoading();
                                     const res = await api.post('users/google-login', {
                                         token: credentialResponse.credential
                                     });
@@ -329,6 +334,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                                     }
                                 } finally {
                                     setLoading(false);
+                                    hideLoading();
                                 }
                             }}
                             onError={() => {

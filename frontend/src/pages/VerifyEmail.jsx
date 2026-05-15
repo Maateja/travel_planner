@@ -3,15 +3,18 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function VerifyEmail() {
   const { token } = useParams();
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     const verifyEmailToken = async () => {
+      showLoading();
       try {
         const res = await api.get(`users/verify-email/${token}`);
         setStatus('success');
@@ -23,6 +26,8 @@ function VerifyEmail() {
         } else {
           setMessage('Server error during verification.');
         }
+      } finally {
+        hideLoading();
       }
     };
 
@@ -43,7 +48,6 @@ function VerifyEmail() {
       >
         {status === 'loading' && (
           <div className="flex flex-col items-center">
-            <Loader className="w-16 h-16 text-primary-500 animate-spin mb-6" />
             <h2 className="text-2xl font-black text-gray-900 font-display">Verifying Email...</h2>
             <p className="text-gray-400 mt-2 font-medium">Please wait while we confirm your email address.</p>
           </div>

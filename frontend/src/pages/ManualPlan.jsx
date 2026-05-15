@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
+import { useLoading } from '../context/LoadingContext';
 
 const ManualPlan = () => {
   const [trips, setTrips] = useState([]);
@@ -42,6 +43,7 @@ const ManualPlan = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   const addDay = () => {
     setDays([...days, { 
@@ -119,6 +121,7 @@ const ManualPlan = () => {
     }
 
     setLoading(true);
+    showLoading();
     setError(null);
 
     try {
@@ -157,6 +160,7 @@ const ManualPlan = () => {
       setError("Failed to save your custom plan. Please check all fields.");
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 

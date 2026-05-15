@@ -15,10 +15,19 @@ const LoadingInterceptor = () => {
             const timer = setTimeout(() => {
                 hideLoading();
                 setInitialLoad(false);
-            }, 2500); // Give user enough time to see the premium animation on first load
+            }, 1500); 
             return () => clearTimeout(timer);
         }
     }, [initialLoad, showLoading, hideLoading]);
+
+    // Show loader on route change
+    useEffect(() => {
+        if (!initialLoad) {
+            showLoading();
+            const timer = setTimeout(() => hideLoading(), 800);
+            return () => clearTimeout(timer);
+        }
+    }, [location.pathname]);
 
     // Handle Axios Interceptors
     useEffect(() => {

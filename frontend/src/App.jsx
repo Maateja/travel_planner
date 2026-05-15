@@ -16,6 +16,9 @@ import MainLayout from './components/MainLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AnimatePresence } from 'framer-motion';
+import LoadingInterceptor from './components/LoadingInterceptor';
+import LoadingScreen from './components/LoadingScreen';
+import { useLoading } from './context/LoadingContext';
 
 
 
@@ -48,8 +51,12 @@ const AnimatedRoutes = () => {
 };
 
 function App() {
+  const { isLoading } = useLoading();
+  
   return (
     <Router>
+      <LoadingInterceptor />
+      <LoadingScreen isVisible={isLoading} />
       <AnimatedRoutes />
     </Router>
   );

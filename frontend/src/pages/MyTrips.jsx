@@ -13,6 +13,7 @@ import {
   Copy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function MyTrips() {
   const [trips, setTrips] = useState([]);
@@ -21,6 +22,7 @@ function MyTrips() {
   const [searchTerm, setSearchTerm] = useState('');
   const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     fetchTrips();
@@ -29,12 +31,14 @@ function MyTrips() {
   const fetchTrips = async () => {
     try {
       setLoading(true);
+      showLoading();
       const res = await api.get('trips');
       setTrips(res.data);
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 
@@ -43,6 +47,7 @@ function MyTrips() {
     
     try {
       setDeletingId(id);
+      showLoading();
       await api.delete(`trips/${id}`);
       setTrips(trips.filter(t => t.id !== id));
     } catch (error) {
@@ -50,6 +55,7 @@ function MyTrips() {
       alert("Failed to delete trip. Please try again.");
     } finally {
       setDeletingId(null);
+      hideLoading();
     }
   };
 
@@ -106,11 +112,7 @@ function MyTrips() {
             </div>
         </header>
 
-        {loading ? (
-            <div className="py-20 flex justify-center">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        ) : (
+        {loading ? null : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
                 <AnimatePresence>
                     {filteredTrips.map((trip, idx) => {

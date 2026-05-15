@@ -20,6 +20,7 @@ import {
     Sparkles
 } from 'lucide-react';
 import api from '../api';
+import { useLoading } from '../context/LoadingContext';
 import './SpinWheelPage.css';
 
 // Initial state options are no longer needed as we use text input for source city
@@ -40,8 +41,8 @@ const SpinWheelPage = () => {
     const [loading, setLoading] = useState(false);
     const [spinning, setSpinning] = useState(false);
     const [result, setResult] = useState(null);
-
     const [feedbackMsg, setFeedbackMsg] = useState('');
+    const { showLoading, hideLoading } = useLoading();
 
     // --- New Filters ---
     const [filters, setFilters] = useState({
@@ -65,6 +66,7 @@ const SpinWheelPage = () => {
     const fetchDestinations = async (isReload = false) => {
         if (!source || source.length < 3) return;
         setLoading(true);
+        showLoading();
         setFeedbackMsg('');
         try {
             let coords = sourceCoords;
@@ -113,6 +115,7 @@ const SpinWheelPage = () => {
             setFeedbackMsg("Oops! Something went wrong while finding places. Please try again.");
         } finally {
             setLoading(false);
+            hideLoading();
         }
     };
 
@@ -286,6 +289,7 @@ const SpinWheelPage = () => {
     const generateFullPlan = async () => {
         if (!result) return;
         setAiLoading(true);
+        showLoading();
         try {
             const res = await api.post('itinerary/generate', {
                 destination: result.name,
@@ -309,6 +313,7 @@ const SpinWheelPage = () => {
             console.error("AI Generation failed:", error);
         } finally {
             setAiLoading(false);
+            hideLoading();
         }
     };
 

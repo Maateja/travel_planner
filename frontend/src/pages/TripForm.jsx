@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { Calendar, MapPin, Globe, Heart, Sparkles, ChevronRight, RefreshCw, Save, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function TripForm() {
   const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ function TripForm() {
   const [itinerary, setItinerary] = useState(null); 
   const [isSaved, setIsSaved] = useState(false);
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   // Task 5: Persistent State (Session only)
   useEffect(() => {
@@ -82,6 +84,7 @@ function TripForm() {
     }
 
     setLoading(true);
+    showLoading();
     setError(null);
     setIsSaved(false);
 
@@ -122,12 +125,14 @@ function TripForm() {
       }
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 
   const handleSaveTrip = async () => {
     if (!itinerary) return;
     setLoading(true);
+    showLoading();
     try {
       // 1. Save the Trip
       const tripPayload = {
@@ -169,6 +174,7 @@ function TripForm() {
       setError('Failed to save your trip. Please try again.');
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 

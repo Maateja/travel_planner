@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../api';
 import { Mail, ArrowLeft, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -10,10 +11,12 @@ function ForgotPassword() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    showLoading();
     setError(null);
     try {
       const res = await api.post('users/forgot-password', { email });
@@ -23,6 +26,7 @@ function ForgotPassword() {
       setError(err.response?.data?.message || err.response?.data?.error || 'Unable to send reset link. Please check your email.');
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 

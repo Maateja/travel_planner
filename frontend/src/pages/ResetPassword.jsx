@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import api from '../api';
 import { Lock, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function ResetPassword() {
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ function ResetPassword() {
   const [error, setError] = useState(null);
   const { token } = useParams();
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,6 +37,7 @@ function ResetPassword() {
     }
 
     setLoading(true);
+    showLoading();
     setError(null);
     try {
       const res = await api.post(`users/reset-password/${token}`, { 
@@ -46,6 +49,7 @@ function ResetPassword() {
       setError(err.response?.data?.message || err.response?.data?.error || 'Invalid or expired reset link.');
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 

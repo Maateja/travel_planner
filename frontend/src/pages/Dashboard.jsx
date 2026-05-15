@@ -19,6 +19,7 @@ import {
   Globe
 } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 // --- Helper Components ---
 
@@ -90,6 +91,7 @@ function Dashboard() {
   const [temporaryRoadmap, setTemporaryRoadmap] = useState(null);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
   const cardRef = useRef(null);
 
   useEffect(() => {
@@ -121,6 +123,7 @@ function Dashboard() {
 
     try {
       setLoading(true);
+      showLoading();
       const res = await api.get('trips');
       setTrips(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
@@ -130,6 +133,7 @@ function Dashboard() {
       }
     } finally {
       setLoading(false); 
+      hideLoading();
     }
   };
 
@@ -223,11 +227,6 @@ function Dashboard() {
       
       <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
 
-      {loading && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-white/80 backdrop-blur-sm">
-            <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-      )}
 
       <motion.div 
         variants={containerVariants}

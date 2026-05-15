@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Camera, Save, Key, Clock, Settings, LogOut, ChevronRight, Briefcase } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 import api from '../api';
 
 const ProfilePage = () => {
@@ -16,6 +17,7 @@ const ProfilePage = () => {
     dob: '',
   });
   const navigate = useNavigate();
+  const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     fetchProfile();
@@ -23,6 +25,7 @@ const ProfilePage = () => {
   }, []);
 
   const fetchProfile = async () => {
+    showLoading();
     try {
         const res = await api.get('users/profile');
         setProfile({
@@ -43,6 +46,8 @@ const ProfilePage = () => {
             gender: userData.gender ?? '',
             dob: userData.dob ?? '',
         });
+    } finally {
+        hideLoading();
     }
   };
 
@@ -58,6 +63,7 @@ const ProfilePage = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
+    showLoading();
     setSuccess(false);
     
     try {
@@ -70,6 +76,7 @@ const ProfilePage = () => {
         console.error("Save Profile Error:", err);
     } finally {
         setLoading(false);
+        hideLoading();
     }
   };
 

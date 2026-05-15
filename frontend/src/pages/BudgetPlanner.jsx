@@ -30,6 +30,7 @@ import {
   Heart
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLoading } from '../context/LoadingContext';
 
 function BudgetPlanner() {
   const [view, setView] = useState('list');
@@ -42,6 +43,7 @@ function BudgetPlanner() {
   const [aiPlaces, setAiPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const { showLoading, hideLoading } = useLoading();
   const [tripBudget] = useState(15000); // Mock trip budget for students
   const [savedPlaceIds, setSavedPlaceIds] = useState(() => {
     try {
@@ -148,6 +150,7 @@ function BudgetPlanner() {
   const handleCitySearch = async () => {
     if (!citySearch || citySearch.length < 3) return;
     setLoading(true);
+    showLoading();
     setErrorMsg('');
     setAiPlaces([]); // Clear old results to show fresh start
     try {
@@ -158,6 +161,7 @@ function BudgetPlanner() {
       setErrorMsg(error.response?.data?.message || "Something went wrong with AI Discovery.");
     } finally {
       setLoading(false);
+      hideLoading();
     }
   };
 
@@ -291,15 +295,6 @@ function BudgetPlanner() {
           </div>
         </div>
 
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center text-primary-500 mb-6">
-              <RefreshCw size={40} className="animate-spin" />
-            </div>
-            <h3 className="text-xl font-black text-gray-900 uppercase tracking-tighter">AI is discovering {citySearch}...</h3>
-            <p className="text-gray-400 font-bold text-xs uppercase mt-2">Finding best student deals, hotels & more</p>
-          </div>
-        )}
 
         {errorMsg && (
           <div className={`flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-300 ${filteredPlaces.length > 0 ? 'py-4' : 'py-20'}`}>
