@@ -1,12 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Menu, User, ChevronDown, Settings, LogOut, UserCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = ({ toggleSidebar }) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDashboard = location.pathname === '/dashboard';
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
   const displayName = userData.full_name || userData.username || 'Explorer';
 
@@ -30,17 +41,17 @@ const Header = ({ toggleSidebar }) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-24 bg-white border-b border-gray-100 z-[2000] flex items-center px-2 md:px-4 shadow-sm">
+    <header className={`fixed top-0 left-0 right-0 h-24 z-[2000] flex items-center px-2 md:px-4 transition-all duration-300 ${isDashboard && !isScrolled ? "bg-transparent border-none" : "bg-white border-b border-gray-100 shadow-sm"}`}>
       <div className="flex items-center justify-between w-full">
         
         {/* Left Side: Hamburger + Logo + Tagline */}
         <div className="flex items-center gap-1 md:gap-1">
           <button 
             onClick={toggleSidebar}
-            className="p-3 pl-1 md:pl-2 hover:bg-gray-50 rounded-2xl text-gray-900 transition-all active:scale-90 group"
+            className="p-3 bg-white hover:bg-gray-50 rounded-xl text-gray-900 transition-all active:scale-90 group shadow-sm border border-gray-100/50 flex items-center justify-center"
             aria-label="Toggle Sidebar"
           >
-            <Menu size={28} className="group-hover:text-primary-600 transition-colors" />
+            <Menu size={24} className="group-hover:text-primary-600 transition-colors" />
           </button>
 
           <Link to="/dashboard" className="flex items-center gap-0 group">
@@ -50,8 +61,12 @@ const Header = ({ toggleSidebar }) => {
               className="h-10 w-10 md:h-30 md:w-30 object-contain" 
             />
             <div className="flex flex-col">
-              <h1 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tighter uppercase leading-none">BAGS UP</h1>
-              <p className="text-[11px] md:text-xs font-bold text-primary-600 uppercase tracking-[0.2em] mt-1.5 opacity-80 decoration-primary-500/30">Escape the Ordinary, Embrace the Extraordinary.</p>
+              <h1 className={`text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none transition-colors duration-300 ${isDashboard && !isScrolled ? "text-white drop-shadow-sm" : "text-gray-900"}`}>
+                BAGS UP
+              </h1>
+              <p className={`text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] mt-1.5 transition-colors duration-300 ${isDashboard && !isScrolled ? "text-white/90 drop-shadow-sm" : "text-primary-600 opacity-80 decoration-primary-500/30"}`}>
+                Travel Starts Here
+              </p>
             </div>
           </Link>
         </div>
@@ -67,15 +82,7 @@ const Header = ({ toggleSidebar }) => {
                     <User size={24} />
                 </div>
             </div>
-            <div className="hidden sm:flex items-center gap-1">
-              <span className="text-sm font-black text-gray-900 leading-none">{displayName}</span>
-              <motion.div
-                animate={{ rotate: isProfileOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <ChevronDown size={14} className="text-gray-400" />
-              </motion.div>
-            </div>
+            {/* Minimalist Profile Icon */}
           </button>
 
           {/* Profile Dropdown Menu */}

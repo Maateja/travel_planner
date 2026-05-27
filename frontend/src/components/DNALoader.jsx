@@ -9,7 +9,7 @@ const DNALoader = () => {
       {dots.map((i) => (
         <motion.div
           key={i}
-          className={`w-2.5 h-2.5 rounded-full ${i % 2 === 0 ? 'bg-teal-400' : 'bg-indigo-400'}`}
+          className={`w-2.5 h-2.5 rounded-full ${i % 2 === 0 ? 'bg-black' : 'bg-white'}`}
           animate={{
             y: [0, -12, 0, 12, 0],
             scale: [1, 1.2, 1, 0.8, 1],
@@ -22,7 +22,7 @@ const DNALoader = () => {
             delay: i * 0.15,
           }}
           style={{
-            boxShadow: `0 0 15px ${i % 2 === 0 ? 'rgba(45, 212, 191, 0.6)' : 'rgba(129, 140, 248, 0.6)'}`,
+            boxShadow: `0 0 15px ${i % 2 === 0 ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.6)'}`,
           }}
         />
       ))}

@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Wallet, CheckCircle2, ChevronRight, ChevronLeft, Sparkles } from 'lucide-react';
+import { Clock, Wallet, CheckCircle2, ChevronRight, ChevronLeft, Sparkles, Shuffle } from 'lucide-react';
 
-const JourneyMap = ({ itinerary }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+const JourneyMap = ({ itinerary, currentIndex: propCurrentIndex, setCurrentIndex: propSetCurrentIndex, onShuffle, shuffling }) => {
+  const [internalIndex, setInternalIndex] = useState(0);
+
+  const currentIndex = propCurrentIndex !== undefined ? propCurrentIndex : internalIndex;
+  const setCurrentIndex = propSetCurrentIndex !== undefined ? propSetCurrentIndex : setInternalIndex;
+
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [itinerary]);
 
   if (!itinerary || itinerary.length === 0) return null;
 
@@ -26,14 +33,41 @@ const JourneyMap = ({ itinerary }) => {
   return (
     <div className="w-full py-16 overflow-hidden select-none px-4">
       {/* 🏁 Roadmap Header */}
-      <div className="container mx-auto mb-12">
-        <h3 className="text-3xl font-black text-gray-900 tracking-tighter uppercase flex items-center gap-3">
-          <div className="w-2.5 h-8 bg-primary-500 rounded-full shadow-lg"></div>
-          Your Journey Roadmap
-        </h3>
-        <p className="text-gray-400 font-black text-[10px] uppercase tracking-[0.3em] mt-2 ml-5">
-          Interactive Day-by-Day Explorer
-        </p>
+      <div className="container mx-auto mb-12 flex items-center justify-between">
+        <div>
+          <h3 className="text-3xl font-black text-gray-900 tracking-tighter uppercase flex items-center gap-3">
+            <div className="w-2.5 h-8 bg-primary-500 rounded-full shadow-lg"></div>
+            Your Journey Roadmap
+          </h3>
+          <p className="text-gray-400 font-black text-[10px] uppercase tracking-[0.3em] mt-2 ml-5">
+            Interactive Day-by-Day Explorer
+          </p>
+        </div>
+        
+        {/* Shuffle Button */}
+        {onShuffle && (
+          <button 
+            onClick={onShuffle}
+            disabled={shuffling}
+            className="p-3.5 bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl shadow-md text-gray-600 hover:text-primary-500 transition-all flex items-center gap-2 font-black text-xs uppercase tracking-widest active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {shuffling ? (
+              <>
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                  className="block h-4 w-4 border-2 border-gray-300 border-t-primary-500 rounded-full"
+                ></motion.span>
+                Shuffling...
+              </>
+            ) : (
+              <>
+                <Shuffle size={16} />
+                Shuffle Plan
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {/* 1️⃣ Carousel Section */}

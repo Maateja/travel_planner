@@ -20,9 +20,16 @@ export const generateItinerary = async (req: AuthRequest, res: Response) => {
 
         const sDate = new Date(start_date);
         const eDate = new Date(end_date);
+        
+        if (!start_date || !end_date || isNaN(sDate.getTime()) || isNaN(eDate.getTime())) {
+            return res.status(400).json({ success: false, error: 'Invalid start or end date' });
+        }
+        
         const days = Math.ceil((eDate.getTime() - sDate.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
-        if (days <= 0) return res.status(400).json({ success: false, error: 'Invalid dates' });
+        if (days <= 0) return res.status(400).json({ success: false, error: 'Invalid date range' });
+
+        const interestsArray = Array.isArray(interests) ? interests : [];
 
         const prompt = `
         Act as an expert travel planner for Indian students.
@@ -33,7 +40,7 @@ export const generateItinerary = async (req: AuthRequest, res: Response) => {
         - Do NOT try to guess or hallucinate a near match if the input is clearly gibberish.
 
         If the destination is VALID, generate a ${days}-day budget travel itinerary for a student visiting ${destination} with a total budget of ₹${budget} (INR).
-        The student is interested in: ${interests.join(', ')}.
+        The student is interested in: ${interestsArray.join(', ')}.
         
         Requirements for Valid Destinations:
         1. Suggest realistic, low-cost travel options (trains/buses) and affordable food/stays in India.

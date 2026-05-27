@@ -13,9 +13,14 @@ function TripDetails() {
   const [trip, setTrip] = useState(null);
   const [itinerary, setItinerary] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [shuffling, setShuffling] = useState(false);
+  const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+
+  useEffect(() => {
+    setCurrentDayIndex(0);
+  }, [itinerary]);
 
   useEffect(() => {
     fetchTripDetails();
@@ -54,10 +59,10 @@ function TripDetails() {
     }
   };
 
-  const generateItinerary = async () => {
+  const handleShuffle = async () => {
     if (!trip) return;
     
-    setGenerating(true);
+    setShuffling(true);
     setError(null);
     setSuccessMsg(null);
     
@@ -70,26 +75,33 @@ function TripDetails() {
         interests: trip.preference ? trip.preference.interests : [] 
     };
 
-    console.log("Sending AI Generation Request:", payload);
+    console.log("Sending AI Shuffle Request:", payload);
 
     try {
-      const res = await api.post('itinerary/generate', payload);
-      console.log("AI Response:", res.data);
-      
-      if (res.data.itinerary) {
-          setItinerary(res.data.itinerary);
-          setSuccessMsg("Itinerary successfully generated!");
-      } else {
-          setItinerary(res.data); 
-      }
+      await api.post('itinerary/generate', payload);
+      await fetchItinerary();
+      setSuccessMsg("Roadmap successfully shuffled!");
     } catch (err) {
-      console.error("AI Generation Error:", err);
-      const errMsg = err.response?.data?.error || "Failed to generate itinerary. Please try again.";
+      console.error("AI Shuffle Error:", err);
+      const errMsg = err.response?.data?.error || "Failed to shuffle roadmap. Please try again.";
       setError(errMsg);
     } finally {
-      setGenerating(false);
+      setShuffling(false);
     }
   };
+
+  if (error && !trip) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6 text-center">
+        <AlertCircle size={48} className="text-red-500 mb-4 animate-bounce-slow" />
+        <h3 className="text-3xl font-black text-gray-900 mb-4 font-display uppercase tracking-widest">Failed to Load Trip</h3>
+        <p className="text-gray-500 max-w-md mb-8 font-medium">{error}</p>
+        <Link to="/dashboard" className="bg-primary-500 text-white px-6 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-primary-600 transition-all shadow-md">
+          Back to Dashboard
+        </Link>
+      </div>
+    );
+  }
 
   if (!trip) return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -145,7 +157,7 @@ function TripDetails() {
                         {trip.destination}
                     </motion.h1>
                     
-                    <div className="flex flex-wrap gap-4 mb-10">
+                    <div className="flex flex-wrap items-center gap-4 mb-10">
                         <div className="flex flex-col sm:flex-row items-center bg-white px-5 py-3 rounded-2xl shadow-sm border border-gray-100 text-gray-700 font-bold gap-4 min-w-[300px] relative overflow-visible">
                             <div className="flex items-center">
                                 <Navigation size={20} className="mr-3 text-primary-500" />
@@ -170,51 +182,12 @@ function TripDetails() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                         <div className="p-8 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-3xl text-white shadow-xl relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-125 transition-transform duration-700">
-                                <img src="/logo.png" alt="BAGS UP Logo" className="w-32 h-32 object-contain filter brightness-0 invert" />
-                            </div>
-                            <h3 className="text-2xl font-black mb-2 flex items-center gap-2">
-                                <Sparkles /> {itinerary.length > 0 ? "Itinerary Ready!" : "Plan Your Journey"}
-                            </h3>
-                            <p className="text-white/80 font-medium mb-6 leading-relaxed">
-                                {itinerary.length > 0 
-                                    ? "Your AI-crafted guide is ready to show you the best of India on a budget."
-                                    : "Let our AI analyze your preferences and budget to create the perfect Indian getaway."}
-                            </p>
-                            
-                            <button 
-                                onClick={generateItinerary} 
-                                disabled={generating}
-                                className={`
-                                    w-full py-4 rounded-2xl font-black text-lg transition-all shadow-xl
-                                    flex items-center justify-center gap-3
-                                    ${generating 
-                                        ? 'bg-white/20 text-white cursor-not-allowed' 
-                                        : 'bg-white text-primary-600 hover:scale-[1.02] active:scale-95 hover:shadow-2xl'}
-                                `}
-                            >
-                                {generating ? (
-                                    <>
-                                        <motion.span 
-                                            animate={{ rotate: 360 }}
-                                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                            className="block h-6 w-6 border-4 border-white/30 border-t-white rounded-full"
-                                        ></motion.span>
-                                        Generating Magic...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles />
-                                        {itinerary.length > 0 ? "Regenerate Plan" : "Generate AI Itinerary"}
-                                    </>
-                                )}
-                            </button>
-                         </div>
-
-                         {/* Map Card - Simplified to remove double border and label */}
-                         <MapComponent destination={trip.destination} itinerary={itinerary} className="h-[320px]" />
+                    <div className="w-full ml-auto">
+                         <MapComponent 
+                           destination={trip.destination} 
+                           itinerary={itinerary.length > 0 && itinerary[currentDayIndex] ? [itinerary[currentDayIndex]] : []} 
+                           className="h-[360px]" 
+                         />
                     </div>
                 </div>
             </div>
@@ -232,7 +205,13 @@ function TripDetails() {
                exit={{ scale: 1.05, opacity: 0 }}
                transition={{ duration: 0.6 }}
             >
-              <JourneyMap itinerary={itinerary} />
+               <JourneyMap 
+                 itinerary={itinerary} 
+                 currentIndex={currentDayIndex}
+                 setCurrentIndex={setCurrentDayIndex}
+                 onShuffle={handleShuffle} 
+                 shuffling={shuffling} 
+               />
             </motion.div>
           ) : (
             <motion.div 

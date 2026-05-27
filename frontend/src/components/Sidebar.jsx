@@ -88,7 +88,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {/* Footer Brand Text */}
         <div className="p-10 border-t border-gray-50">
            <p className="text-[11px] font-black text-gray-300 uppercase tracking-[0.3em] text-center">
-             Escape the Ordinary • Embrace the Extraordinary
+             Travel Starts Here
            </p>
         </div>
       </motion.aside>

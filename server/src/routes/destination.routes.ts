@@ -7,6 +7,21 @@ const router = express.Router();
 router.get('/discover', discoverDestinations);
 router.get('/city-details', discoverCityDetails);
 
+router.get('/geocode', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.status(400).json({ error: 'Query is required' });
+
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q as string)}&limit=1`, {
+            headers: { 'User-Agent': 'BagsUpTravelApp/2.0 (Contact: team@bagsup.com)' }
+        });
+        const geoData = await geoRes.json();
+        res.json(geoData);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Get all states
 router.get('/states', async (req, res) => {
     try {

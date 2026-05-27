@@ -33,6 +33,9 @@ const LoadingInterceptor = () => {
     useEffect(() => {
         const requestInterceptor = api.interceptors.request.use(
             (config) => {
+                if (config.skipLoader) {
+                    return config;
+                }
                 // For API calls, show if they take longer than 100ms
                 const timer = setTimeout(() => {
                     startRequest();
@@ -50,6 +53,9 @@ const LoadingInterceptor = () => {
                 if (response.config.loadingTimer) {
                     clearTimeout(response.config.loadingTimer);
                 }
+                if (response.config.skipLoader) {
+                    return response;
+                }
                 // Minimum duration to prevent flickering
                 setTimeout(() => endRequest(), 200);
                 return response;
@@ -58,7 +64,9 @@ const LoadingInterceptor = () => {
                 if (error.config?.loadingTimer) {
                     clearTimeout(error.config.loadingTimer);
                 }
-                endRequest();
+                if (!error.config?.skipLoader) {
+                    endRequest();
+                }
                 return Promise.reject(error);
             }
         );
