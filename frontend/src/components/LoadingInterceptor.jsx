@@ -15,19 +15,12 @@ const LoadingInterceptor = () => {
             const timer = setTimeout(() => {
                 hideLoading();
                 setInitialLoad(false);
-            }, 1500); 
+            }, 400); 
             return () => clearTimeout(timer);
         }
     }, [initialLoad, showLoading, hideLoading]);
 
-    // Show loader on route change
-    useEffect(() => {
-        if (!initialLoad) {
-            showLoading();
-            const timer = setTimeout(() => hideLoading(), 800);
-            return () => clearTimeout(timer);
-        }
-    }, [location.pathname]);
+    // Show loader on route change (Removed artificial 800ms navigation lock delay)
 
     // Handle Axios Interceptors
     useEffect(() => {

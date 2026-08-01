@@ -22,7 +22,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
     // Ping the backend to wake it up from cold sleep (e.g. Render free tier)
     // This makes the first Google Login or regular login attempt much faster 
     // by ensuring the server is already awake by the time the user clicks submit.
-    api.get('/').catch(() => {});
+    api.get('/', { skipLoader: true }).catch(() => {});
 
     setFormData({
       username: '',
