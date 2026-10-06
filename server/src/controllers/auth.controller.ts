@@ -195,6 +195,10 @@ export const login = async (req: Request, res: Response) => {
 export const googleLogin = async (req: Request, res: Response) => {
     try {
         const { token } = req.body;
+        if (!token) {
+            return res.status(400).json({ error: 'Token is required' });
+        }
+
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID as string,
@@ -203,28 +207,62 @@ export const googleLogin = async (req: Request, res: Response) => {
         if (!payload || !payload.email) return res.status(400).json({ error: 'Invalid Google token' });
 
         const { email, sub: googleId, name, picture } = payload;
+        const normalizedEmail = email.toLowerCase();
 
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
+            // Generate unique, valid username
+            const rawUsername = (name || normalizedEmail.split('@')[0])
+                .toLowerCase()
+                .replace(/[^a-z0-9_]/g, '_')
+                .replace(/^_+|_+$/g, '') || 'user';
+
+            let uniqueUsername = rawUsername.slice(0, 20);
+            let counter = 1;
+            while (await User.findOne({ username: uniqueUsername })) {
+                uniqueUsername = `${rawUsername.slice(0, 15)}_${Math.floor(100 + Math.random() * 900)}`;
+                counter++;
+                if (counter > 10) break;
+            }
+
             user = new User({
-                username: name || email.split('@')[0],
-                email,
+                username: uniqueUsername,
+                email: normalizedEmail,
                 googleId,
                 avatar: picture,
-                full_name: name,
+                full_name: name || uniqueUsername,
                 isVerified: true
             });
             await user.save();
-        } else if (!user.googleId) {
-            user.googleId = googleId;
-            await user.save();
+        } else {
+            let updated = false;
+            if (!user.googleId) {
+                user.googleId = googleId;
+                updated = true;
+            }
+            if (picture && !user.avatar) {
+                user.avatar = picture;
+                updated = true;
+            }
+            if (name && !user.full_name) {
+                user.full_name = name;
+                updated = true;
+            }
+            if (!user.isVerified) {
+                user.isVerified = true;
+                updated = true;
+            }
+            if (updated) {
+                await user.save();
+            }
         }
 
         const jwtToken = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET as string, { expiresIn: '7d' });
 
         res.json({
             access: jwtToken,
+            refresh: jwtToken,
             user: {
                 id: user._id,
                 username: user.username,
@@ -234,7 +272,8 @@ export const googleLogin = async (req: Request, res: Response) => {
             }
         });
     } catch (err: any) {
-        res.status(500).json({ error: err.message });
+        console.error('Google Login Controller Error:', err);
+        res.status(500).json({ error: err.message || 'Failed to authenticate with Google' });
     }
 };
 
