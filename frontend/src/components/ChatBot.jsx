@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Sparkles, User, Loader2, History, MessageSquare, Plus } from 'lucide-react';
+import { X, Send, Sparkles, User, History, MessageSquare, Plus } from 'lucide-react';
 import api from '../api';
 
 const TravelBotAvatar = ({ isHovered, isTyping }) => {
@@ -63,8 +63,24 @@ const TravelBotAvatar = ({ isHovered, isTyping }) => {
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [userName, setUserName] = useState('Explorer');
-  const [messages, setMessages] = useState([]);
+  const [userName] = useState(() => {
+    const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
+    return userData.full_name?.split(' ')[0] || userData.username || 'Explorer';
+  });
+  const [messages, setMessages] = useState(() => {
+    const savedCurrentChat = JSON.parse(sessionStorage.getItem('bagsup_current_chat') || 'null');
+    if (savedCurrentChat && savedCurrentChat.length > 0) {
+      return savedCurrentChat;
+    }
+    const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
+    const name = userData.full_name?.split(' ')[0] || userData.username || 'Explorer';
+    return [
+      {
+        role: 'assistant',
+        content: `Hey ${name} 👋 Ready to plan your next adventure? I'm your BagsUp AI Travel Assistant!`
+      }
+    ];
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -72,24 +88,6 @@ const ChatBot = () => {
   const [chatSessions, setChatSessions] = useState(() => {
     return JSON.parse(sessionStorage.getItem('bagsup_chat_sessions') || '[]');
   });
-
-  useEffect(() => {
-    const userData = JSON.parse(sessionStorage.getItem('user_data') || '{}');
-    const name = userData.full_name?.split(' ')[0] || userData.username || 'Explorer';
-    setUserName(name);
-    
-    const savedCurrentChat = JSON.parse(sessionStorage.getItem('bagsup_current_chat') || 'null');
-    if (savedCurrentChat && savedCurrentChat.length > 0) {
-        setMessages(savedCurrentChat);
-    } else {
-        setMessages([
-            { 
-                role: 'assistant', 
-                content: `Hey ${name} 👋 Ready to plan your next adventure? I'm your BagsUp AI Travel Assistant!` 
-            }
-        ]);
-    }
-  }, []);
 
   // Save current chat automatically
   useEffect(() => {
@@ -123,7 +121,7 @@ const ChatBot = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, loading]);
 
   const forbiddenKeywords = [
     'solve', 'equation', 'derivative', 'physics', 'coding', 
@@ -158,10 +156,14 @@ const ChatBot = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/chat', {
-        message: userMessage,
-        history: messages.slice(1) // exclude greeting
-      });
+      const response = await api.post(
+        '/chat',
+        {
+          message: userMessage,
+          history: messages.slice(1) // exclude greeting
+        },
+        { skipLoader: true }
+      );
 
       setMessages(prev => [...prev, { role: 'assistant', content: response.data.text }]);
     } catch (error) {
@@ -179,6 +181,7 @@ const ChatBot = () => {
 
   const [activeTab, setActiveTab] = useState('chat');
 
+  // eslint-disable-next-line no-unused-vars
   const historyPrompts = [...messages]
     .filter(m => m.role === 'user')
     .reverse()
@@ -266,14 +269,28 @@ const ChatBot = () => {
                           ))}
                           {loading && (
                             <div className="flex justify-start">
-                               <div className="flex gap-3">
-                                <div className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/20">
-                                    <Loader2 size={14} className="text-white animate-spin" />
+                              <div className="flex gap-3 max-w-[85%]">
+                                <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center border shadow-sm bg-primary-500 border-primary-500 shadow-primary-500/10">
+                                  <Sparkles size={14} className="text-white animate-pulse" />
                                 </div>
-                                <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm flex gap-1 items-center">
-                                    <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-1.2 h-1.2 rounded-full bg-primary-400" />
-                                    <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }} className="w-1.2 h-1.2 rounded-full bg-primary-400" />
-                                    <motion.div animate={{ scale: [1, 1.5, 1] }} transition={{ repeat: Infinity, duration: 0.6, delay: 0.4 }} className="w-1.2 h-1.2 rounded-full bg-primary-400" />
+                                <div className="p-4 px-5 rounded-2xl rounded-tl-none border border-gray-100 bg-white shadow-sm flex items-center gap-1.5 min-h-[44px]">
+                                  {[0, 1, 2].map((i) => (
+                                    <motion.span
+                                      key={i}
+                                      className="w-2 h-2 rounded-full bg-primary-500 inline-block"
+                                      animate={{
+                                        y: [0, -6, 0],
+                                        opacity: [0.35, 1, 0.35],
+                                        scale: [0.85, 1.25, 0.85],
+                                      }}
+                                      transition={{
+                                        duration: 0.85,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        delay: i * 0.16,
+                                      }}
+                                    />
+                                  ))}
                                 </div>
                               </div>
                             </div>

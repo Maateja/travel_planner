@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import api from '../api';
-import { CheckCircle, XCircle, Loader } from 'lucide-react';
+import { CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLoading } from '../context/LoadingContext';
 
@@ -9,7 +9,6 @@ function VerifyEmail() {
   const { token } = useParams();
   const [status, setStatus] = useState('loading'); // loading, success, error
   const [message, setMessage] = useState('');
-  const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {

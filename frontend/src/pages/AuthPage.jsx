@@ -15,34 +15,15 @@ function AuthPage({ isLogin = false, isLanding = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
-  const [showPageLoader, setShowPageLoader] = useState(false);
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
-
-  useEffect(() => {
-    // When navigating to Login or Register, show the video loader briefly
-    if (!isLanding) {
-      setShowPageLoader(true);
-      const timer = setTimeout(() => setShowPageLoader(false), 1500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLanding, isLogin]);
 
   useEffect(() => {
     // Ping the backend to wake it up from cold sleep (e.g. Render free tier)
     // This makes the first Google Login or regular login attempt much faster 
     // by ensuring the server is already awake by the time the user clicks submit.
     api.get('/', { skipLoader: true }).catch(() => {});
-
-    setFormData({
-      username: '',
-      email: '',
-      password: ''
-    });
-    setError(null);
-    setSuccessMsg(null);
-    setLoading(false);
-  }, [isLogin]);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -117,30 +98,8 @@ function AuthPage({ isLogin = false, isLanding = false }) {
     }
   };
 
-  const containerVariants = {
-    initial: { opacity: 0, scale: 0.95 },
-    animate: { opacity: 1, scale: 1 },
-    exit: { opacity: 0, scale: 1.05 }
-  };
-
-  // Video loader overlay component
-  const VideoLoader = () => (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', zIndex: 9999, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <video autoPlay loop muted playsInline style={{ width: '256px', height: '256px', objectFit: 'contain' }}>
-        <source src="/Loading Animation.mp4" type="video/mp4" />
-      </video>
-    </div>
-  );
-
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen flex items-center justify-center p-6 pt-24 relative overflow-hidden bg-gray-900"
-    >
-      {/* Video Loader Overlay */}
-      {(showPageLoader || loading) && <VideoLoader />}
+    <div className="min-h-screen flex items-center justify-center p-6 pt-24 relative overflow-hidden bg-gray-900">
       {/* Background Image */}
       <div 
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
@@ -187,13 +146,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
 
         {/* Right Side: Auth Form — hidden on landing page */}
         {!isLanding && (
-        <motion.div 
-            variants={containerVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="w-full max-w-sm lg:max-w-md mx-auto bg-black/40 backdrop-blur-xl rounded-[28px] shadow-2xl border border-white/20 p-6 lg:p-8 relative overflow-hidden"
-        >
+        <div className="w-full max-w-sm lg:max-w-md mx-auto bg-black/40 backdrop-blur-xl rounded-[28px] shadow-2xl border border-white/20 p-6 lg:p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500 rounded-bl-full -z-0 opacity-20 blur-2xl"></div>
             
             <div className="relative z-10">
@@ -385,10 +338,10 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                     </Link>
                 </div>
             </div>
-        </motion.div>
+        </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 

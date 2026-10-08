@@ -1,12 +1,6 @@
 import { Request, Response } from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import Destination from '../models/Destination.js';
-
-const getGenAI = () => {
-    const key = (process.env.GEMINI_API_KEY || '').trim();
-    if (!key) console.error("❌ GEMINI_API_KEY is missing in .env");
-    return new GoogleGenerativeAI(key);
-};
+import { callBynaraAI } from '../utils/bynaraAI.js';
 
 export const discoverDestinations = async (req: Request, res: Response) => {
     try {
@@ -69,22 +63,15 @@ export const discoverDestinations = async (req: Request, res: Response) => {
                 - If there are beaches nearby (like Varkala or Kovalam), you MUST include them.
                 - Prioritize "must-visit" places that are actually popular.
                 - Do NOT include any place further than ${r}km.
-                - Return ONLY a JSON array of objects.
+                - Return ONLY a JSON array of objects. No intro/outro text.
                 
                 Object Schema: { name, state, short_description, estimated_budget_min, estimated_budget_max, recommended_days, latitude, longitude, category }.
                 `;
 
-                const genAI = getGenAI();
-                let result;
-                try {
-                    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-                    result = await model.generateContent(aiPrompt);
-                } catch (aiErr: any) {
-                    console.warn("[Discovery] Primary model failed, trying fallback...", aiErr.message);
-                    const modelFallback = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-                    result = await modelFallback.generateContent(aiPrompt);
-                }
-                const text = result.response.text();
+                const text = await callBynaraAI({
+                    userMessage: aiPrompt,
+                    temperature: 0.7,
+                });
                 
                 const jsonMatch = text.match(/\[[\s\S]*\]/);
                 if (jsonMatch) {
@@ -162,18 +149,10 @@ export const discoverCityDetails = async (req: Request, res: Response) => {
         }.
         `;
 
-        const genAI = getGenAI();
-        let result;
-        try {
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            result = await model.generateContent(aiPrompt);
-        } catch (error: any) {
-            console.warn("[City Details] 2.5 Model Busy, trying fallback lite...");
-            const modelFallback = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-            result = await modelFallback.generateContent(aiPrompt);
-        }
-        
-        const text = result.response.text();
+        const text = await callBynaraAI({
+            userMessage: aiPrompt,
+            temperature: 0.7,
+        });
         
         // Comprehensive JSON extraction
         let jsonStr = text;

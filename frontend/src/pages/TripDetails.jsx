@@ -12,15 +12,29 @@ function TripDetails() {
   const { id } = useParams();
   const [trip, setTrip] = useState(null);
   const [itinerary, setItinerary] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [shuffling, setShuffling] = useState(false);
   const [currentDayIndex, setCurrentDayIndex] = useState(0);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
-  useEffect(() => {
-    setCurrentDayIndex(0);
-  }, [itinerary]);
+  const fetchTripDetails = async () => {
+    try {
+      const res = await api.get(`trips/${id}`);
+      setTrip(res.data);
+    } catch (err) {
+      console.error(err);
+      setError("Could not load trip details.");
+    }
+  };
+
+  const fetchItinerary = async () => {
+    try {
+      const res = await api.get(`itinerary/?trip_id=${id}`);
+      setItinerary(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     fetchTripDetails();
@@ -36,28 +50,6 @@ function TripDetails() {
        return () => clearTimeout(timer);
     }
   }, [error, successMsg]);
-
-  const fetchTripDetails = async () => {
-    try {
-      const res = await api.get(`trips/${id}`);
-      setTrip(res.data);
-    } catch (err) {
-      console.error(err);
-      setError("Could not load trip details.");
-    }
-  };
-
-  const fetchItinerary = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get(`itinerary/?trip_id=${id}`);
-      setItinerary(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleShuffle = async () => {
     if (!trip) return;

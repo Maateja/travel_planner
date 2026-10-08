@@ -1,26 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import api from '../api';
 import { useLoading } from '../context/LoadingContext';
 
 const LoadingInterceptor = () => {
-    const { startRequest, endRequest, showLoading, hideLoading } = useLoading();
-    const location = useLocation();
-    const [initialLoad, setInitialLoad] = useState(true);
-
-    // Handle Initial App Load / Page Refresh
-    useEffect(() => {
-        if (initialLoad) {
-            showLoading();
-            const timer = setTimeout(() => {
-                hideLoading();
-                setInitialLoad(false);
-            }, 400); 
-            return () => clearTimeout(timer);
-        }
-    }, [initialLoad, showLoading, hideLoading]);
-
-    // Show loader on route change (Removed artificial 800ms navigation lock delay)
+    const { startRequest, endRequest } = useLoading();
 
     // Handle Axios Interceptors
     useEffect(() => {
@@ -29,10 +12,10 @@ const LoadingInterceptor = () => {
                 if (config.skipLoader) {
                     return config;
                 }
-                // For API calls, show if they take longer than 100ms
+                // For API calls, show if they take longer than 150ms
                 const timer = setTimeout(() => {
                     startRequest();
-                }, 100); 
+                }, 150); 
                 config.loadingTimer = timer;
                 return config;
             },

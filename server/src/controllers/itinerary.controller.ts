@@ -1,18 +1,11 @@
 import { Request, Response } from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import Trip from '../models/Trip.js';
 import Itinerary from '../models/Itinerary.js';
+import { callBynaraAI } from '../utils/bynaraAI.js';
 
 interface AuthRequest extends Request {
     user?: any;
 }
-
-const getGenAI = () => {
-    const key = (process.env.GEMINI_API_KEY || '').trim();
-    if (!key) console.error("❌ GEMINI_API_KEY is missing in .env");
-    else console.log(`[AI] Initializing with key length: ${key.length}`);
-    return new GoogleGenerativeAI(key);
-};
 
 export const generateItinerary = async (req: AuthRequest, res: Response) => {
     try {
@@ -80,21 +73,10 @@ export const generateItinerary = async (req: AuthRequest, res: Response) => {
         }
         `;
 
-        const genAI = getGenAI();
-        let result;
-        try {
-            // Priority: Fast layout, high rate limit threshold
-            const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-            result = await model.generateContent(prompt);
-        } catch (error: any) {
-            console.warn("[Itinerary] Primary model failed, trying fallback...", error.message);
-            // Fallback
-            const modelFallback = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
-            result = await modelFallback.generateContent(prompt);
-        }
-        
-        const response = await result.response;
-        const text = response.text();
+        const text = await callBynaraAI({
+            userMessage: prompt,
+            temperature: 0.7,
+        });
         
         console.log('--- RAW AI RESPONSE ---');
         console.log(text);
