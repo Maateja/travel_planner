@@ -26,7 +26,7 @@ const AnimatedRoutes = () => {
   const location = useLocation();
   return (
     <ErrorBoundary>
-      <AnimatePresence mode="wait">
+      <AnimatePresence>
         <Routes location={location} key={location.pathname}>
           <Route path="/login" element={<AuthPage isLogin={true} />} />
           <Route path="/register" element={<AuthPage isLogin={false} />} />
