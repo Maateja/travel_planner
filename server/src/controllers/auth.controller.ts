@@ -12,6 +12,13 @@ import axios from 'axios';
 
 const resolveMx = promisify(dns.resolveMx);
 
+interface EmailPayload {
+    to: string;
+    subject: string;
+    text: string;
+    html: string;
+}
+
 async function sendMailWithFallback(emailUser: string, emailPass: string, mailOptions: any) {
     const transportConfigs = [
         {
@@ -21,9 +28,9 @@ async function sendMailWithFallback(emailUser: string, emailPass: string, mailOp
             family: 4,
             requireTLS: true,
             auth: { user: emailUser, pass: emailPass },
-            connectionTimeout: 8000,
-            greetingTimeout: 8000,
-            socketTimeout: 8000
+            connectionTimeout: 4000,
+            greetingTimeout: 4000,
+            socketTimeout: 4000
         },
         {
             host: 'smtp.gmail.com',
@@ -31,16 +38,16 @@ async function sendMailWithFallback(emailUser: string, emailPass: string, mailOp
             secure: true,
             family: 4,
             auth: { user: emailUser, pass: emailPass },
-            connectionTimeout: 8000,
-            greetingTimeout: 8000,
-            socketTimeout: 8000
+            connectionTimeout: 4000,
+            greetingTimeout: 4000,
+            socketTimeout: 4000
         },
         {
             service: 'gmail',
             auth: { user: emailUser, pass: emailPass },
-            connectionTimeout: 8000,
-            greetingTimeout: 8000,
-            socketTimeout: 8000
+            connectionTimeout: 4000,
+            greetingTimeout: 4000,
+            socketTimeout: 4000
         }
     ];
 
@@ -51,7 +58,7 @@ async function sendMailWithFallback(emailUser: string, emailPass: string, mailOp
             const transporter = nodemailer.createTransport(config as any);
             const sendPromise = transporter.sendMail(mailOptions);
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('SMTP timeout after 8 seconds')), 8000)
+                setTimeout(() => reject(new Error('SMTP timeout after 4 seconds')), 4000)
             );
             return await Promise.race([sendPromise, timeoutPromise]);
         } catch (err: any) {
@@ -66,6 +73,58 @@ async function sendMailWithFallback(emailUser: string, emailPass: string, mailOp
     }
 
     throw lastError || new Error('All SMTP transport attempts failed.');
+}
+
+async function sendEmailNotification(payload: EmailPayload) {
+    const brevoApiKey = (process.env.BREVO_API_KEY || "").trim();
+    const senderEmail = (process.env.EMAIL_USER || "naikmteja@gmail.com").trim();
+
+    // 1. Try Brevo REST API (HTTPS port 443 — works seamlessly on Render Free Tier)
+    if (brevoApiKey) {
+        try {
+            console.log(`[Email] Attempting Brevo HTTP API to ${payload.to}...`);
+            const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'api-key': brevoApiKey,
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: 'BAGSUP', email: senderEmail },
+                    to: [{ email: payload.to }],
+                    subject: payload.subject,
+                    htmlContent: payload.html,
+                    textContent: payload.text
+                })
+            });
+
+            const data: any = await res.json().catch(() => ({}));
+            if (res.ok) {
+                console.log(`[Email] Email sent successfully via Brevo! Message ID:`, data?.messageId);
+                return { success: true, provider: 'brevo', data };
+            } else {
+                console.warn(`[Email] Brevo API responded with error status ${res.status}:`, data);
+            }
+        } catch (apiErr: any) {
+            console.warn(`[Email] Brevo HTTP request error:`, apiErr.message);
+        }
+    }
+
+    // 2. Fallback to Nodemailer SMTP (for local dev / environments with open SMTP ports)
+    const emailPass = (process.env.EMAIL_PASS || "").trim();
+    if (senderEmail && emailPass) {
+        console.log(`[Email] Falling back to Nodemailer SMTP...`);
+        return await sendMailWithFallback(senderEmail, emailPass, {
+            from: `"BAGSUP" <${senderEmail}>`,
+            to: payload.to,
+            subject: payload.subject,
+            text: payload.text,
+            html: payload.html
+        });
+    }
+
+    throw new Error('Email service not configured. Please set BREVO_API_KEY or EMAIL_PASS.');
 }
 
 export const forgotPassword = async (req: Request, res: Response) => {
@@ -96,19 +155,19 @@ export const forgotPassword = async (req: Request, res: Response) => {
         console.log(`👉 ${resetUrl}`);
         console.log('=============================================================\n');
 
+        const brevoApiKey = (process.env.BREVO_API_KEY || "").trim();
         const emailUser = (process.env.EMAIL_USER || "").trim();
         const emailPass = (process.env.EMAIL_PASS || "").trim();
 
-        if (!emailUser || !emailPass) {
-            console.warn("[Auth] EMAIL_USER or EMAIL_PASS not configured in .env");
+        if (!brevoApiKey && (!emailUser || !emailPass)) {
+            console.warn("[Auth] BREVO_API_KEY or EMAIL_PASS not configured in .env");
             return res.json({
-                message: "Recovery link generated! (Email credentials not configured in .env)",
+                message: "Recovery link generated! (Email service not configured in .env)",
                 resetUrl: resetUrl
             });
         }
 
         const mailOptions = {
-            from: `"BAGSUP" <${emailUser}>`,
             to: user.email,
             subject: 'Reset Your Password – BAGSUP',
             text: `Click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 15 minutes.`,
@@ -128,22 +187,14 @@ export const forgotPassword = async (req: Request, res: Response) => {
         };
 
         try {
-            await sendMailWithFallback(emailUser, emailPass, mailOptions);
+            await sendEmailNotification(mailOptions);
             return res.json({ message: "Recovery link has been sent to your email." });
         } catch (emailErr: any) {
             console.error("[Auth] Recovery email delivery failed:", emailErr.message);
-
-            const isAuthError = emailErr.code === 'EAUTH' || emailErr.responseCode === 535 || (emailErr.message && emailErr.message.includes('BadCredentials'));
-            let reason = "Email sending timed out or failed to connect to mail server.";
-            if (isAuthError) {
-                reason = "Gmail App Password was rejected (BadCredentials). Please update EMAIL_PASS in your .env with a fresh 16-character Google App Password.";
-            }
-
-            // Return success with resetUrl fallback so user is never blocked
             return res.json({
                 message: "Password reset link generated successfully.",
                 resetUrl: resetUrl,
-                warning: reason
+                warning: emailErr.message
             });
         }
     } catch (err: any) {
@@ -182,8 +233,8 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 };
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '598862793311-694upm2m7o2npmuit59mo2uq7ffub4s0.apps.googleusercontent.com';
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '885360001380-6s1drpspaq6n21052d3l860a8l3a060k.apps.googleusercontent.com';
+const client = new OAuth2Client();
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -246,11 +297,11 @@ export const register = async (req: Request, res: Response) => {
         console.log(`👉 ${verifyUrl}`);
         console.log('=============================================================\n');
 
+        const brevoApiKey = (process.env.BREVO_API_KEY || "").trim();
         const emailUser = (process.env.EMAIL_USER || "").trim();
         const emailPass = (process.env.EMAIL_PASS || "").trim();
 
         const mailOptions = {
-            from: `"BAGSUP" <${emailUser}>`,
             to: newUser.email,
             subject: 'Verify Your Email Address – BAGSUP',
             text: `Welcome to BAGSUP! Please verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`,
@@ -269,9 +320,9 @@ export const register = async (req: Request, res: Response) => {
             `
         };
 
-        if (emailUser && emailPass) {
+        if (brevoApiKey || (emailUser && emailPass)) {
             try {
-                await sendMailWithFallback(emailUser, emailPass, mailOptions);
+                await sendEmailNotification(mailOptions);
                 return res.status(201).json({ 
                     message: 'Registration successful! A verification email has been sent to your Gmail. Please verify your email before logging in.'
                 });
@@ -380,16 +431,21 @@ export const googleLogin = async (req: Request, res: Response) => {
             });
         }
 
-        const { token } = req.body;
+        const { token, isLogin } = req.body;
         if (!token) {
             return res.status(400).json({ error: 'Token is required' });
         }
 
-        const targetAudience = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
+        const allowedAudiences = Array.from(new Set([
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.VITE_GOOGLE_CLIENT_ID,
+            '885360001380-6s1drpspaq6n21052d3l860a8l3a060k.apps.googleusercontent.com',
+            '598862793311-694upm2m7o2npmuit59mo2uq7ffub4s0.apps.googleusercontent.com'
+        ].filter(Boolean))) as string[];
 
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: targetAudience,
+            audience: allowedAudiences,
         });
         const payload = ticket.getPayload();
         if (!payload || !payload.email) return res.status(400).json({ error: 'Invalid Google token' });
@@ -405,7 +461,14 @@ export const googleLogin = async (req: Request, res: Response) => {
         let user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
-            // Generate unique, valid username
+            // If user is attempting to sign in on the login page without having signed up:
+            if (isLogin) {
+                return res.status(404).json({
+                    error: 'No account found with this Google email. Please sign up first before signing in.'
+                });
+            }
+
+            // User is on the registration page: proceed with creating their new account
             const rawUsername = (name || normalizedEmail.split('@')[0])
                 .toLowerCase()
                 .replace(/[^a-z0-9_]/g, '_')

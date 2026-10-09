@@ -5,7 +5,7 @@ import App from './App.jsx'
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { LoadingProvider } from './context/LoadingContext';
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "598862793311-694upm2m7o2npmuit59mo2uq7ffub4s0.apps.googleusercontent.com";
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "885360001380-6s1drpspaq6n21052d3l860a8l3a060k.apps.googleusercontent.com";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

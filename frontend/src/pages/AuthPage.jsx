@@ -364,7 +364,8 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                                             setLoading(true);
                                             showLoading();
                                             const res = await api.post('users/google-login', {
-                                                token: credentialResponse.credential
+                                                token: credentialResponse.credential,
+                                                isLogin: isLogin
                                             });
                                             sessionStorage.setItem('access_token', res.data.access);
                                             sessionStorage.setItem('refresh_token', res.data.refresh);
