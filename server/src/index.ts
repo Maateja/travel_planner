@@ -85,15 +85,18 @@ app.use('/api', async (req, res, next) => {
         return next();
     }
 
-    // If currently connecting, wait for initial connection attempt before rejecting
-    if (mongoose.connection.readyState === 2 && dbConnectionPromise) {
+    // If not connected, wait for connection attempt
+    if (mongoose.connection.readyState !== 1) {
+        if (!dbConnectionPromise) {
+            dbConnectionPromise = connectDB();
+        }
         await dbConnectionPromise;
     }
 
     // readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
     if (mongoose.connection.readyState !== 1) {
         return res.status(503).json({
-            error: 'Database connection unavailable. Please ensure MongoDB is connected and IP whitelist is configured in MongoDB Atlas.',
+            error: 'Database connection unavailable. Please check MongoDB Atlas IP Access List (ensure 0.0.0.0/0 is whitelisted) and restart the server.',
             readyState: mongoose.connection.readyState
         });
     }
@@ -107,10 +110,11 @@ app.use('/api/itinerary', itineraryRoutes);
 app.use('/api/destinations', destinationRoutes);
 app.use('/api/chat', chatRoutes);
 
-// Start Server immediately and connect to DB concurrently
+// Start connection immediately
+dbConnectionPromise = connectDB();
+
+// Start Server
 const serverPort = Number(PORT) || 5000;
 app.listen(serverPort, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${serverPort}`);
 });
-
-dbConnectionPromise = connectDB();

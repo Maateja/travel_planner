@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
@@ -185,6 +186,12 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const register = async (req: Request, res: Response) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                error: 'Database connection is not ready. Please ensure your MongoDB Atlas cluster has IP Access List set to 0.0.0.0/0 (Allow access from anywhere) and restart your server.'
+            });
+        }
+
         const { username, email, password } = req.body;
 
         if (!email || !username || !password) {
@@ -321,6 +328,12 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                error: 'Database connection is not ready. Please ensure your MongoDB Atlas cluster has IP Access List set to 0.0.0.0/0 (Allow access from anywhere) and restart your server.'
+            });
+        }
+
         const { username, password } = req.body;
 
         const lookup = (username || '').toLowerCase().trim();
