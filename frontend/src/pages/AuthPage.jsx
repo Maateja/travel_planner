@@ -15,6 +15,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const [devVerifyUrl, setDevVerifyUrl] = useState(null);
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
 
@@ -62,24 +63,29 @@ function AuthPage({ isLogin = false, isLanding = false }) {
         // Navigate to dashboard
         navigate('/dashboard');
       } else {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(formData.email)) {
-          setError("Invalid email or password");
+        const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/i;
+        if (!gmailRegex.test(formData.email.trim())) {
+          setError("Please enter a valid Gmail address (@gmail.com).");
           setLoading(false);
+          hideLoading();
           return;
         }
         if (formData.password.length < 6) {
-          setError("Invalid email or password");
+          setError("Password must be at least 6 characters long.");
           setLoading(false);
+          hideLoading();
           return;
         }
 
         const res = await api.post('users/register', formData);
         
-        // Show success message
-        setSuccessMsg(res.data.message || 'Registration successful. You can now log in.');
+        // Show success message and direct verification link if provided
+        setSuccessMsg(res.data.message || 'Verification email sent! Please check your Gmail inbox to verify your account before logging in.');
+        if (res.data.verifyUrl) {
+          setDevVerifyUrl(res.data.verifyUrl);
+        }
         setError(null);
-        // Do not auto-login or navigate until verified.
+        setFormData({ username: '', email: '', password: '' });
       }
     } catch (err) {
       console.error("Auth Error:", err); // Log the full error
@@ -87,7 +93,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
         console.log("Error Response Data:", err.response.data); // Log data
         const msg = typeof err.response.data === 'string' 
           ? err.response.data 
-          : Object.values(err.response.data).join(' ');
+          : (err.response.data.error || err.response.data.message || Object.values(err.response.data).join(' '));
         setError(msg || 'Authentication failed. Please check your credentials.');
       } else {
         setError('Connection error. Is the server running?');
@@ -235,10 +241,22 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
-                                className="p-4 bg-green-50 rounded-2xl border-l-4 border-green-500 text-green-700 text-sm font-bold flex items-center gap-3"
+                                className="p-4 bg-green-500/10 rounded-2xl border border-green-500/30 text-green-400 text-xs font-bold"
                             >
-                                <CheckCircle size={18} />
-                                {successMsg}
+                                <div className="flex items-center gap-3">
+                                    <CheckCircle size={18} className="flex-shrink-0" />
+                                    <span>{successMsg}</span>
+                                </div>
+                                {devVerifyUrl && (
+                                    <div className="mt-3 pt-3 border-t border-green-500/20">
+                                        <a 
+                                            href={devVerifyUrl} 
+                                            className="inline-flex items-center justify-center w-full py-2.5 px-4 bg-green-500 hover:bg-green-400 text-gray-900 rounded-xl font-black text-xs uppercase tracking-wider shadow-md transition-all"
+                                        >
+                                            Verify Account Now
+                                        </a>
+                                    </div>
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>

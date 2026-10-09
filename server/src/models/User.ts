@@ -15,6 +15,8 @@ export interface IUser extends Document {
     resetPasswordExpires?: Date;
     isVerified?: boolean;
     verificationToken?: string;
+    verificationExpires?: Date;
+    savedPlaces?: any[];
     createdAt: Date;
 }
 
@@ -32,6 +34,8 @@ const UserSchema: Schema = new Schema({
     resetPasswordExpires: { type: Date },
     isVerified: { type: Boolean, default: false },
     verificationToken: { type: String },
+    verificationExpires: { type: Date },
+    savedPlaces: { type: [Schema.Types.Mixed], default: [] },
     createdAt: { type: Date, default: Date.now }
 }, {
     toJSON: { virtuals: true },

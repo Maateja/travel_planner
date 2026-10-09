@@ -10,6 +10,8 @@ function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [resetLink, setResetLink] = useState(null);
+  const [warningNotice, setWarningNotice] = useState(null);
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
 
@@ -18,9 +20,17 @@ function ForgotPassword() {
     setLoading(true);
     showLoading();
     setError(null);
+    setResetLink(null);
+    setWarningNotice(null);
     try {
       const res = await api.post('users/forgot-password', { email });
       setSuccess(true);
+      if (res.data?.resetUrl) {
+        setResetLink(res.data.resetUrl);
+      }
+      if (res.data?.warning) {
+        setWarningNotice(res.data.warning);
+      }
     } catch (err) {
       console.error("Reset Error:", err);
       setError(err.response?.data?.message || err.response?.data?.error || 'Unable to send reset link. Please check your email.');
@@ -69,15 +79,45 @@ function ForgotPassword() {
                     <ShieldCheck size={32} />
                 </div>
                 <div className="space-y-4">
-                    <h2 className="text-2xl lg:text-3xl font-black text-white tracking-tight uppercase">Check Your Inbox</h2>
+                    <h2 className="text-2xl lg:text-3xl font-black text-white tracking-tight uppercase">
+                      {resetLink ? "Recovery Link Ready" : "Check Your Inbox"}
+                    </h2>
                     <p className="text-gray-300 font-bold text-xs uppercase tracking-widest leading-loose">
-                        We've sent a password recovery link to <br/>
-                        <span className="text-white">{email}</span>
+                        {resetLink ? (
+                          <>A password recovery link has been generated for <br/><span className="text-white">{email}</span></>
+                        ) : (
+                          <>We've sent a password recovery link to <br/><span className="text-white">{email}</span></>
+                        )}
                     </p>
                 </div>
+
+                {warningNotice && (
+                  <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/30 text-amber-300 text-[11px] text-left leading-relaxed">
+                    <p className="font-bold flex items-center gap-1.5 mb-1">
+                      <span>⚠️</span> Email Notice
+                    </p>
+                    <p className="text-amber-200/80">{warningNotice}</p>
+                  </div>
+                )}
+
+                {resetLink && (
+                  <div className="space-y-2 pt-2">
+                    <a
+                      href={resetLink}
+                      className="w-full py-3 text-gray-900 font-black text-xs uppercase tracking-wider rounded-[16px] shadow-lg transition-all flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-300 hover:scale-[1.02] active:scale-95 shadow-yellow-400/30"
+                    >
+                      Reset Password Now
+                    </a>
+                  </div>
+                )}
+
                 <button
                     onClick={() => navigate('/login')}
-                    className="mt-6 w-full py-3 text-gray-900 font-black text-sm uppercase tracking-wider rounded-[16px] shadow-lg transition-all flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-300 hover:scale-[1.02] active:scale-95 shadow-yellow-400/30"
+                    className={`w-full py-3 text-sm font-bold uppercase tracking-wider rounded-[16px] transition-all flex items-center justify-center gap-2 ${
+                      resetLink 
+                        ? 'text-gray-300 bg-white/10 hover:bg-white/20 hover:text-white border border-white/10'
+                        : 'text-gray-900 bg-yellow-400 hover:bg-yellow-300 hover:scale-[1.02] active:scale-95 shadow-yellow-400/30 font-black'
+                    }`}
                 >
                     Return to Login
                 </button>
