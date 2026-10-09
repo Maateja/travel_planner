@@ -278,16 +278,14 @@ export const register = async (req: Request, res: Response) => {
             } catch (emailErr: any) {
                 console.error("[Auth] Verification email delivery failed:", emailErr.message);
                 return res.status(201).json({ 
-                    message: 'Registration successful! Please verify your email to log in.',
-                    verifyUrl: verifyUrl,
+                    message: 'Registration successful! However, the verification email could not be sent. Please contact support.',
                     warning: 'Email delivery notice: ' + emailErr.message
                 });
             }
         } else {
             console.warn("[Auth] Email credentials not configured. Verification link logged in terminal.");
             return res.status(201).json({ 
-                message: 'Registration successful! Please verify your email to log in.',
-                verifyUrl: verifyUrl
+                message: 'Registration successful! Please check your email inbox to verify your account.'
             });
         }
     } catch (err: any) {

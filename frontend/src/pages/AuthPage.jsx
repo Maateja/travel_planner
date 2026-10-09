@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../api';
 import { GoogleLogin } from '@react-oauth/google';
-import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle, CheckCircle } from 'lucide-react';
+import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoading } from '../context/LoadingContext';
 
@@ -15,16 +15,32 @@ function AuthPage({ isLogin = false, isLanding = false }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
-  const [devVerifyUrl, setDevVerifyUrl] = useState(null);
+  const [registeredEmail, setRegisteredEmail] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { showLoading, hideLoading } = useLoading();
 
   useEffect(() => {
     // Ping the backend to wake it up from cold sleep (e.g. Render free tier)
-    // This makes the first Google Login or regular login attempt much faster 
-    // by ensuring the server is already awake by the time the user clicks submit.
     api.get('/', { skipLoader: true }).catch(() => {});
   }, []);
+
+  // Check for verification success redirect (from VerifyEmail page)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('verified') === 'true') {
+      setSuccessMsg('Your email has been verified successfully! You can now sign in.');
+      // Clean up the URL
+      window.history.replaceState({}, '', '/login');
+    }
+  }, [location.search]);
+
+  // Reset registeredEmail when switching to login mode
+  useEffect(() => {
+    if (isLogin) {
+      setRegisteredEmail(null);
+    }
+  }, [isLogin]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,6 +53,7 @@ function AuthPage({ isLogin = false, isLanding = false }) {
     showLoading();
     setError(null);
     setSuccessMsg(null);
+    setRegisteredEmail(null);
     try {
       if (isLogin) {
         const res = await api.post('users/login', {
@@ -79,11 +96,9 @@ function AuthPage({ isLogin = false, isLanding = false }) {
 
         const res = await api.post('users/register', formData);
         
-        // Show success message and direct verification link if provided
-        setSuccessMsg(res.data.message || 'Verification email sent! Please check your Gmail inbox to verify your account before logging in.');
-        if (res.data.verifyUrl) {
-          setDevVerifyUrl(res.data.verifyUrl);
-        }
+        // Show the "check your email" success screen
+        setRegisteredEmail(formData.email.trim());
+        setSuccessMsg(res.data.message || 'A verification email has been sent! Please check your Gmail inbox.');
         setError(null);
         setFormData({ username: '', email: '', password: '' });
       }
@@ -156,204 +171,253 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500 rounded-bl-full -z-0 opacity-20 blur-2xl"></div>
             
             <div className="relative z-10">
-                <div className="text-center mb-4 lg:hidden flex flex-col items-center">
-                    <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-3">Escape the Ordinary, Embrace the Extraordinary.</p>
-                </div>
-
-                <h2 className="text-2xl lg:text-3xl font-black text-white mb-2 font-display tracking-tight text-center">
-                    {isLogin ? 'Welcome' : 'Get Started'}
-                </h2>
-                <p className="text-gray-300 text-xs lg:text-sm font-medium mb-6 text-center">
-                    {isLogin ? 'Enter your details to continue your adventure.' : 'Plan your adventure today by signing up.'}
-                </p>
-
-                <form onSubmit={handleSubmit} className="space-y-3">
-                    <div className="group">
-                        <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1.5 ml-1">
-                            {isLogin ? 'Email ID' : 'Account Username'}
-                        </label>
-                        <div className="relative">
-                            {isLogin ? (
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
-                            ) : (
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
-                            )}
-                            <input
-                                name="username"
-                                type="text"
-                                placeholder={isLogin ? "your email id" : "studio_explorer"}
-                                value={formData.username}
-                                onChange={handleInputChange}
-                                className="w-full pl-10 pr-4 py-3 rounded-[16px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
-                                required
-                            />
+                {registeredEmail ? (
+                    <div className="text-center py-2">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-yellow-400/20 border-2 border-yellow-400/40 flex items-center justify-center text-yellow-400 shadow-xl shadow-yellow-400/10">
+                            <Mail size={32} className="animate-bounce" />
                         </div>
+                        
+                        <h2 className="text-2xl lg:text-3xl font-black text-white mb-2 font-display tracking-tight">
+                            Check Your Email
+                        </h2>
+                        <p className="text-gray-300 text-xs lg:text-sm font-medium mb-3">
+                            A verification link has been sent to:
+                        </p>
+                        
+                        <div className="bg-white/10 rounded-2xl p-3 mb-4 border border-white/20">
+                            <p className="text-yellow-300 font-bold text-sm break-all font-mono">
+                                {registeredEmail}
+                            </p>
+                        </div>
+                        
+                        <p className="text-gray-300 text-xs mb-6 leading-relaxed">
+                            Please open your Gmail inbox and click the verification link to activate your account. Once verified, you will be automatically redirected to sign in.
+                        </p>
+
+                        <div className="space-y-2.5">
+                            <a
+                                href="https://mail.google.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full py-3 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-sm uppercase tracking-wider rounded-[16px] shadow-lg shadow-yellow-400/30 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Mail size={16} />
+                                Open Gmail Inbox
+                                <ExternalLink size={14} />
+                            </a>
+                            <Link
+                                to="/login"
+                                onClick={() => setRegisteredEmail(null)}
+                                className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-black text-sm uppercase tracking-wider rounded-[16px] border border-white/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            >
+                                Go to Sign In
+                                <ArrowRight size={16} />
+                            </Link>
+                        </div>
+
+                        <p className="text-[11px] text-gray-400 mt-5">
+                            Didn't receive the email? Check spam or{' '}
+                            <button
+                                type="button"
+                                onClick={() => setRegisteredEmail(null)}
+                                className="text-yellow-400 underline font-bold hover:text-yellow-300 ml-1"
+                            >
+                                try signing up again
+                            </button>
+                        </p>
                     </div>
-                    
-                    {!isLogin && (
-                        <div className="group">
-                            <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1.5 ml-1">Email Address</label>
-                            <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
-                                <input
-                                    name="email"
-                                    type="email"
-                                    placeholder="john@studio.edu"
-                                    value={formData.email}
-                                    onChange={handleInputChange}
-                                    className="w-full pl-10 pr-4 py-3 rounded-[16px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
-                                    required
+                ) : (
+                    <>
+                        <div className="text-center mb-4 lg:hidden flex flex-col items-center">
+                            <p className="text-[10px] font-black text-gray-300 tracking-widest uppercase mb-3">Escape the Ordinary, Embrace the Extraordinary.</p>
+                        </div>
+
+                        <h2 className="text-2xl lg:text-3xl font-black text-white mb-2 font-display tracking-tight text-center">
+                            {isLogin ? 'Welcome' : 'Get Started'}
+                        </h2>
+                        <p className="text-gray-300 text-xs lg:text-sm font-medium mb-6 text-center">
+                            {isLogin ? 'Enter your details to continue your adventure.' : 'Plan your adventure today by signing up.'}
+                        </p>
+
+                        <form onSubmit={handleSubmit} className="space-y-3">
+                            <div className="group">
+                                <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1.5 ml-1">
+                                    {isLogin ? 'Email ID' : 'Account Username'}
+                                </label>
+                                <div className="relative">
+                                    {isLogin ? (
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
+                                    ) : (
+                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
+                                    )}
+                                    <input
+                                        name="username"
+                                        type="text"
+                                        placeholder={isLogin ? "your email id" : "studio_explorer"}
+                                        value={formData.username}
+                                        onChange={handleInputChange}
+                                        className="w-full pl-10 pr-4 py-3 rounded-[16px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            
+                            {!isLogin && (
+                                <div className="group">
+                                    <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1.5 ml-1">Email Address</label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
+                                        <input
+                                            name="email"
+                                            type="email"
+                                            placeholder="john@studio.edu"
+                                            value={formData.email}
+                                            onChange={handleInputChange}
+                                            className="w-full pl-10 pr-4 py-3 rounded-[16px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="group">
+                                <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1.5 ml-1">Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
+                                    <input
+                                        name="password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        onChange={handleInputChange}
+                                        className="w-full pl-10 pr-4 py-3 rounded-[16px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <AnimatePresence>
+                                {error && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="p-4 bg-red-50 rounded-2xl border-l-4 border-red-500 text-red-700 text-sm font-bold flex items-center gap-3"
+                                    >
+                                        <AlertCircle size={18} />
+                                        {error}
+                                    </motion.div>
+                                )}
+                                {successMsg && !registeredEmail && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0 }}
+                                        className="p-4 bg-green-500/10 rounded-2xl border border-green-500/30 text-green-400 text-xs font-bold"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <CheckCircle size={18} className="flex-shrink-0" />
+                                            <span>{successMsg}</span>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            <div className="flex justify-end mb-2">
+                                {isLogin && (
+                                    <Link 
+                                        to="/forgot-password" 
+                                        className="text-xs font-black text-gray-300 uppercase tracking-widest hover:text-white transition-colors mr-2"
+                                    >
+                                        Forgot Password?
+                                    </Link>
+                                )}
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className={`w-full py-3 text-gray-900 font-black text-sm uppercase tracking-wider rounded-[16px] shadow-lg transition-all flex items-center justify-center gap-2 ${
+                                    loading 
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
+                                        : 'bg-yellow-400 hover:bg-yellow-300 hover:scale-[1.02] active:scale-95 shadow-yellow-400/30'
+                                }`}
+                            >
+                                {loading ? (
+                                    <motion.div 
+                                        animate={{ rotate: 360 }}
+                                        transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                                        className="w-4 h-4 border-4 border-gray-900/30 border-t-gray-900 rounded-full"
+                                    ></motion.div>
+                                ) : (
+                                    <>
+                                        {isLogin ? 'Sign In' : 'Create Account'} 
+                                        <ArrowRight size={16} />
+                                    </>
+                                )}
+                            </button>
+                            
+                            <div className="mt-4 flex justify-center">
+                                <GoogleLogin
+                                    onSuccess={async (credentialResponse) => {
+                                        try {
+                                            setLoading(true);
+                                            showLoading();
+                                            const res = await api.post('users/google-login', {
+                                                token: credentialResponse.credential
+                                            });
+                                            sessionStorage.setItem('access_token', res.data.access);
+                                            sessionStorage.setItem('refresh_token', res.data.refresh);
+                                            
+                                            if (res.data.user) {
+                                                sessionStorage.setItem('user_data', JSON.stringify(res.data.user));
+                                            }
+
+                                            setError(null);
+                                            navigate('/dashboard');
+                                        } catch (err) {
+                                            console.error("Google Login Error:", err);
+                                            if (err.response && err.response.data) {
+                                                console.log("Detailed Backend Error:", err.response.data);
+                                                if (err.response.data.traceback) {
+                                                    console.log("Backend Traceback:", err.response.data.traceback);
+                                                }
+                                                setError(`Login Error: ${err.response.data.details || err.response.data.error || 'Check console for details'}`);
+                                            } else {
+                                                setError('Google Login Failed. Check if server is running.');
+                                            }
+                                        } finally {
+                                            setLoading(false);
+                                            hideLoading();
+                                        }
+                                    }}
+                                    onError={() => {
+                                        console.error('Google Sign-In failed or popup was closed.');
+                                        setError('Google Sign-In failed. Please ensure third-party popups are enabled and try again.');
+                                    }}
+                                    shape="pill"
+                                    theme="filled_blue"
+                                    size="large"
+                                    text="continue_with"
                                 />
                             </div>
-                        </div>
-                    )}
+                        </form>
 
-                    <div className="group">
-                        <label className="block text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1.5 ml-1">Password</label>
-                        <div className="relative">
-                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={16} />
-                            <input
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleInputChange}
-                                className="w-full pl-10 pr-4 py-3 rounded-[16px] bg-white/10 border border-white/20 focus:bg-white/20 focus:border-white focus:ring-2 focus:ring-white/50 transition-all outline-none font-bold text-white placeholder:text-gray-400 shadow-sm text-sm"
-                                required
-                            />
-                        </div>
-                    </div>
-
-                    <AnimatePresence>
-                        {error && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                className="p-4 bg-red-50 rounded-2xl border-l-4 border-red-500 text-red-700 text-sm font-bold flex items-center gap-3"
-                            >
-                                <AlertCircle size={18} />
-                                {error}
-                            </motion.div>
-                        )}
-                        {successMsg && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                className="p-4 bg-green-500/10 rounded-2xl border border-green-500/30 text-green-400 text-xs font-bold"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <CheckCircle size={18} className="flex-shrink-0" />
-                                    <span>{successMsg}</span>
-                                </div>
-                                {devVerifyUrl && (
-                                    <div className="mt-3 pt-3 border-t border-green-500/20">
-                                        <a 
-                                            href={devVerifyUrl} 
-                                            className="inline-flex items-center justify-center w-full py-2.5 px-4 bg-green-500 hover:bg-green-400 text-gray-900 rounded-xl font-black text-xs uppercase tracking-wider shadow-md transition-all"
-                                        >
-                                            Verify Account Now
-                                        </a>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    <div className="flex justify-end mb-2">
-                        {isLogin && (
+                        <div className="mt-4 text-center">
+                            <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
+                                {isLogin ? "New to BAGS UP?" : "Already have an account?"}
+                            </p>
                             <Link 
-                                to="/forgot-password" 
-                                className="text-xs font-black text-gray-300 uppercase tracking-widest hover:text-white transition-colors mr-2"
+                                to={isLogin ? "/register" : "/login"}
+                                replace
+                                className="inline-block mt-1 text-white font-black text-base hover:text-yellow-300 transition-colors group"
                             >
-                                Forgot Password?
+                                {isLogin ? "Sign up" : "Sign in"}
+                                <div className="h-0.5 bg-yellow-400 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
                             </Link>
-                        )}
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className={`w-full py-3 text-gray-900 font-black text-sm uppercase tracking-wider rounded-[16px] shadow-lg transition-all flex items-center justify-center gap-2 ${
-                            loading 
-                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed shadow-none' 
-                                : 'bg-yellow-400 hover:bg-yellow-300 hover:scale-[1.02] active:scale-95 shadow-yellow-400/30'
-                        }`}
-                    >
-                        {loading ? (
-                            <motion.div 
-                                animate={{ rotate: 360 }}
-                                transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                                className="w-4 h-4 border-4 border-gray-900/30 border-t-gray-900 rounded-full"
-                            ></motion.div>
-                        ) : (
-                            <>
-                                {isLogin ? 'Sign In' : 'Create Account'} 
-                                <ArrowRight size={16} />
-                            </>
-                        )}
-                    </button>
-                    
-                    <div className="mt-4 flex justify-center">
-                        <GoogleLogin
-                            onSuccess={async (credentialResponse) => {
-                                try {
-                                    setLoading(true);
-                                    showLoading();
-                                    const res = await api.post('users/google-login', {
-                                        token: credentialResponse.credential
-                                    });
-                                    sessionStorage.setItem('access_token', res.data.access);
-                                    sessionStorage.setItem('refresh_token', res.data.refresh);
-                                    
-                                    if (res.data.user) {
-                                        sessionStorage.setItem('user_data', JSON.stringify(res.data.user));
-                                    }
-
-                                    setError(null);
-                                    navigate('/dashboard');
-                                } catch (err) {
-                                    console.error("Google Login Error:", err);
-                                    if (err.response && err.response.data) {
-                                        console.log("Detailed Backend Error:", err.response.data);
-                                        if (err.response.data.traceback) {
-                                            console.log("Backend Traceback:", err.response.data.traceback);
-                                        }
-                                        setError(`Login Error: ${err.response.data.details || err.response.data.error || 'Check console for details'}`);
-                                    } else {
-                                        setError('Google Login Failed. Check if server is running.');
-                                    }
-                                } finally {
-                                    setLoading(false);
-                                    hideLoading();
-                                }
-                            }}
-                            onError={() => {
-                                console.error('Google Sign-In failed or popup was closed.');
-                                setError('Google Sign-In failed. Please ensure third-party popups are enabled and try again.');
-                            }}
-                            shape="pill"
-                            theme="filled_blue"
-                            size="large"
-                            text="continue_with"
-                        />
-                    </div>
-                </form>
-
-                <div className="mt-4 text-center">
-                    <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">
-                        {isLogin ? "New to BAGS UP?" : "Already have an account?"}
-                    </p>
-                    <Link 
-                        to={isLogin ? "/register" : "/login"}
-                        replace
-                        className="inline-block mt-1 text-white font-black text-base hover:text-yellow-300 transition-colors group"
-                    >
-                        {isLogin ? "Sign up" : "Sign in"}
-                        <div className="h-0.5 bg-yellow-400 rounded-full w-0 group-hover:w-full transition-all duration-300"></div>
-                    </Link>
-                </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
         )}
