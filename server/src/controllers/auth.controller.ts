@@ -182,7 +182,8 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 };
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '598862793311-694upm2m7o2npmuit59mo2uq7ffub4s0.apps.googleusercontent.com';
+const client = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -375,14 +376,22 @@ export const login = async (req: Request, res: Response) => {
 
 export const googleLogin = async (req: Request, res: Response) => {
     try {
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({
+                error: 'Database connection is not ready. Please verify MongoDB Atlas IP Access List (0.0.0.0/0).'
+            });
+        }
+
         const { token } = req.body;
         if (!token) {
             return res.status(400).json({ error: 'Token is required' });
         }
 
+        const targetAudience = process.env.GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
+
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID as string,
+            audience: targetAudience,
         });
         const payload = ticket.getPayload();
         if (!payload || !payload.email) return res.status(400).json({ error: 'Invalid Google token' });

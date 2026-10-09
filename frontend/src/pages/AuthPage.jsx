@@ -330,10 +330,9 @@ function AuthPage({ isLogin = false, isLanding = false }) {
                                 }
                             }}
                             onError={() => {
-                                console.log('Login Failed');
-                                setError('Google Login Failed');
+                                console.error('Google Sign-In failed or popup was closed.');
+                                setError('Google Sign-In failed. Please ensure third-party popups are enabled and try again.');
                             }}
-                            use_fedcm_for_prompt={true}
                             shape="pill"
                             theme="filled_blue"
                             size="large"
