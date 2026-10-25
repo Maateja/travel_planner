@@ -13,7 +13,7 @@ router.get('/geocode', async (req, res) => {
         if (!q) return res.status(400).json({ error: 'Query is required' });
 
         const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q as string)}&limit=1`, {
-            headers: { 'User-Agent': 'BagsUpTravelApp/2.0 (Contact: team@bagsup.com)' }
+            headers: { 'User-Agent': 'PrayanamTravelApp/2.0 (Contact: team@prayanam.com)' }
         });
         const geoData = await geoRes.json();
         res.json(geoData);

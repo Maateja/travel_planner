@@ -59,8 +59,8 @@ function ForgotPassword() {
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
         {/* Left: Logo + Name */}
         <div className="flex items-center gap-0">
-          <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
-          <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">BAGS UP</span>
+          <img src="/logo.png" alt="Prayanam Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
+          <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">Prayanam</span>
         </div>
       </div>
 

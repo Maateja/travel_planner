@@ -363,7 +363,7 @@ const SpinWheelPage = () => {
             <div className="spin-wheel-container">
                 <header className="spin-header">
                     <motion.h1 className="headline" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-                        Don’t know where to go? Let <span className="brand-text">BAGS UP</span> choose for you!
+                        Don’t know where to go? Let <span className="brand-text">Prayanam</span> choose for you!
                     </motion.h1>
                     <p className="subtext">Select your criteria and spin the wheel for a custom curated adventure.</p>
                 </header>

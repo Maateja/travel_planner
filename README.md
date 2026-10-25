@@ -1,6 +1,6 @@
-# BagsUp – AI Budget Travel Planner for Students
+# Prayanam – AI Budget Travel Planner for Students
 
-**BagsUp** is an AI-powered travel planning platform designed specifically for students. It helps users generate personalized, budget-friendly travel itineraries with smart cost distribution, interactive roadmap visualization, and real-time budget tracking. 
+**Prayanam** is an AI-powered travel planning platform designed specifically for students. It helps users generate personalized, budget-friendly travel itineraries with smart cost distribution, interactive roadmap visualization, and real-time budget tracking. 
 
 The platform combines the power of artificial intelligence (Google Gemini) with modern web technologies to simplify trip planning while ensuring financial awareness.
 
@@ -65,7 +65,7 @@ The platform combines the power of artificial intelligence (Google Gemini) with 
 ## 📂 Project Structure
 
 ```text
-bagsup/
+prayanam/
 ├── client/        # React frontend application
 ├── server/        # Node.js + Express backend logic
 │   ├── models/    # MongoDB Mongoose schemas
@@ -79,8 +79,8 @@ Follow these steps to set up the project locally on your machine.
 
 1️⃣ Clone the repository
 Bash
-git clone [https://github.com/yourusername/bagsup.git](https://github.com/yourusername/bagsup.git)
-cd bagsup
+git clone [https://github.com/yourusername/prayanam.git](https://github.com/yourusername/prayanam.git)
+cd prayanam
 
 2️⃣ Backend Setup
 Navigate to the server directory, install dependencies, and start the development server.

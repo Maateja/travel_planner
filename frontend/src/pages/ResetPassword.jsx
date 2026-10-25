@@ -103,9 +103,9 @@ function ResetPassword() {
           <>
             <div className="mb-10">
                 <div className="flex items-center gap-0 mb-2">
-                    <img src="/logo.png" alt="BAGS UP Logo" className="w-24 h-20 object-contain" />
+                    <img src="/logo.png" alt="Prayanam Logo" className="w-24 h-20 object-contain" />
                     <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase font-display">
-                        BAGS UP
+                        Prayanam
                     </h1>
                 </div>
                 <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight uppercase">Set New Password</h2>

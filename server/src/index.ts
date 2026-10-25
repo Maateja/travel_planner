@@ -32,7 +32,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('BagsUp Node.js API is running...');
+    res.send('Prayanam Node.js API is running...');
 });
 
 // Database connection with retry logic

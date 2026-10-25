@@ -62,7 +62,7 @@ const Header = ({ toggleSidebar }) => {
             />
             <div className="flex flex-col">
               <h1 className={`text-2xl md:text-3xl font-black tracking-tighter uppercase leading-none transition-colors duration-300 ${isDashboard && !isScrolled ? "text-white drop-shadow-sm" : "text-gray-900"}`}>
-                BAGS UP
+                Prayanam
               </h1>
               <p className={`text-[11px] md:text-xs font-bold uppercase tracking-[0.2em] mt-1.5 transition-colors duration-300 ${isDashboard && !isScrolled ? "text-white/90 drop-shadow-sm" : "text-primary-600 opacity-80 decoration-primary-500/30"}`}>
                 Travel Starts Here

@@ -91,7 +91,7 @@ async function sendEmailNotification(payload: EmailPayload) {
                     'content-type': 'application/json'
                 },
                 body: JSON.stringify({
-                    sender: { name: 'BAGSUP', email: senderEmail },
+                    sender: { name: 'Prayanam', email: senderEmail },
                     to: [{ email: payload.to }],
                     subject: payload.subject,
                     htmlContent: payload.html,
@@ -116,7 +116,7 @@ async function sendEmailNotification(payload: EmailPayload) {
     if (senderEmail && emailPass) {
         console.log(`[Email] Falling back to Nodemailer SMTP...`);
         return await sendMailWithFallback(senderEmail, emailPass, {
-            from: `"BAGSUP" <${senderEmail}>`,
+            from: `"Prayanam" <${senderEmail}>`,
             to: payload.to,
             subject: payload.subject,
             text: payload.text,
@@ -151,7 +151,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
 
         console.log('\n=============================================================');
-        console.log(`🔗 [BAGSUP] PASSWORD RESET LINK FOR: ${user.email}`);
+        console.log(`🔗 [PRAYANAM] PASSWORD RESET LINK FOR: ${user.email}`);
         console.log(`👉 ${resetUrl}`);
         console.log('=============================================================\n');
 
@@ -169,12 +169,12 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         const mailOptions = {
             to: user.email,
-            subject: 'Reset Your Password – BAGSUP',
+            subject: 'Reset Your Password – Prayanam',
             text: `Click the link below to reset your password:\n${resetUrl}\n\nThis link will expire in 15 minutes.`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;">
                     <h2 style="color: #111827; margin-top: 0; font-size: 22px;">Reset Your Password</h2>
-                    <p style="color: #4b5563; font-size: 15px; line-height: 1.5;">You recently requested to reset the password for your BAGSUP account. Click the button below to proceed:</p>
+                    <p style="color: #4b5563; font-size: 15px; line-height: 1.5;">You recently requested to reset the password for your Prayanam account. Click the button below to proceed:</p>
                     <div style="margin: 28px 0; text-align: center;">
                         <a href="${resetUrl}" style="background-color: #facc15; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; display: inline-block;">Reset Password</a>
                     </div>
@@ -259,6 +259,74 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Please enter a valid Gmail address (@gmail.com).' });
         }
 
+        // 1. Domain MX Record verification (Native DNS fallback)
+        try {
+            const domain = normalizedEmail.split('@')[1];
+            const mxRecords = await resolveMx(domain).catch(() => []);
+            if (!mxRecords || mxRecords.length === 0) {
+                return res.status(400).json({ error: 'The email domain cannot receive incoming emails (no MX records found).' });
+            }
+        } catch (mxErr: any) {
+            console.warn('[Auth] MX resolution check warning:', mxErr.message);
+        }
+
+        // 2. Real-time Email Deliverability Verification via Abstract API
+        const abstractApiKey = (process.env.ABSTRACT_API_KEY || "").trim();
+        if (abstractApiKey) {
+            try {
+                console.log(`[Auth] Validating email deliverability via Abstract API for ${normalizedEmail}...`);
+                const response = await axios.get('https://emailvalidation.abstractapi.com/v1/', {
+                    params: {
+                        api_key: abstractApiKey,
+                        email: normalizedEmail
+                    },
+                    timeout: 5000
+                });
+
+                const data = response.data;
+                if (data) {
+                    if (data.is_valid_format && data.is_valid_format.value === false) {
+                        return res.status(400).json({ error: 'Please enter a properly formatted email address.' });
+                    }
+                    if (data.deliverability === 'UNDELIVERABLE') {
+                        return res.status(400).json({ error: 'This email address appears to be undeliverable or does not exist.' });
+                    }
+                    if (data.is_disposable_email && data.is_disposable_email.value === true) {
+                        return res.status(400).json({ error: 'Temporary or disposable email addresses are not permitted.' });
+                    }
+                    if (data.is_smtp_valid && data.is_smtp_valid.value === false) {
+                        return res.status(400).json({ error: 'Unable to verify email mailbox. Please ensure this email can receive messages.' });
+                    }
+                    console.log(`[Auth] Abstract API verified email: deliverability=${data.deliverability}, quality=${data.quality_score}`);
+                }
+            } catch (apiErr: any) {
+                console.warn('[Auth] Abstract API verification warning:', apiErr.response?.data?.error?.message || apiErr.message);
+                // Non-blocking fallback: do not lock out legitimate users if the API service is unreachable or rate-limited
+            }
+        }
+
+        // 3. Optional ZeroBounce Verification (if configured)
+        const zeroBounceKey = (process.env.ZEROBOUNCE_API_KEY || "").trim();
+        if (zeroBounceKey) {
+            try {
+                const zbRes = await axios.get('https://api.zerobounce.net/v2/validate', {
+                    params: {
+                        api_key: zeroBounceKey,
+                        email: normalizedEmail
+                    },
+                    timeout: 5000
+                });
+                if (zbRes.data?.status === 'invalid' || zbRes.data?.status === 'spamtrap' || zbRes.data?.status === 'abuse') {
+                    return res.status(400).json({ error: 'This email address is invalid or flagged as undeliverable.' });
+                }
+                if (zbRes.data?.sub_status === 'disposable') {
+                    return res.status(400).json({ error: 'Temporary or disposable email addresses are not permitted.' });
+                }
+            } catch (zbErr: any) {
+                console.warn('[Auth] ZeroBounce verification warning:', zbErr.response?.data?.error || zbErr.message);
+            }
+        }
+
         if (password.length < 6) {
             return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
         }
@@ -293,7 +361,7 @@ export const register = async (req: Request, res: Response) => {
         const verifyUrl = `${frontendUrl}/verify-email/${rawVerificationToken}`;
 
         console.log('\n=============================================================');
-        console.log(`✉️ [BAGSUP] EMAIL VERIFICATION LINK FOR: ${newUser.email}`);
+        console.log(`✉️ [PRAYANAM] EMAIL VERIFICATION LINK FOR: ${newUser.email}`);
         console.log(`👉 ${verifyUrl}`);
         console.log('=============================================================\n');
 
@@ -303,11 +371,11 @@ export const register = async (req: Request, res: Response) => {
 
         const mailOptions = {
             to: newUser.email,
-            subject: 'Verify Your Email Address – BAGSUP',
-            text: `Welcome to BAGSUP! Please verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`,
+            subject: 'Verify Your Email Address – Prayanam',
+            text: `Welcome to Prayanam! Please verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 580px; margin: 0 auto; padding: 24px; border: 1px solid #e5e7eb; border-radius: 12px; background-color: #ffffff;">
-                    <h2 style="color: #111827; margin-top: 0; font-size: 22px;">Welcome to BAGSUP!</h2>
+                    <h2 style="color: #111827; margin-top: 0; font-size: 22px;">Welcome to Prayanam!</h2>
                     <p style="color: #4b5563; font-size: 15px; line-height: 1.5;">Thank you for registering. Please click the button below to verify your email address and activate your account:</p>
                     <div style="margin: 28px 0; text-align: center;">
                         <a href="${verifyUrl}" style="background-color: #facc15; color: #111827; padding: 14px 28px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; display: inline-block;">Verify Email Address</a>
@@ -367,7 +435,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
         user.verificationExpires = undefined;
         await user.save();
 
-        console.log(`✅ [BAGSUP] Email verified successfully for: ${user.email}`);
+        console.log(`✅ [PRAYANAM] Email verified successfully for: ${user.email}`);
 
         res.json({ message: "Email verified successfully! You can now log in." });
     } catch (err: any) {

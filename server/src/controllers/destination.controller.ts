@@ -15,7 +15,7 @@ export const discoverDestinations = async (req: Request, res: Response) => {
         if ((isNaN(userLat) || isNaN(userLng)) && sourceCity && radius !== 'all') {
             try {
                 const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${sourceCity}&limit=1`, {
-                    headers: { 'User-Agent': 'BagsUpTravelApp/2.0 (Contact: team@bagsup.com)' }
+                    headers: { 'User-Agent': 'PrayanamTravelApp/2.0 (Contact: team@prayanam.com)' }
                 });
                 const geoData: any = await geoRes.json();
                 if (geoData && geoData.length > 0) {
@@ -140,10 +140,11 @@ export const discoverCityDetails = async (req: Request, res: Response) => {
         3. The "location" field MUST ALWAYS include the word "${city}".
         4. Return ONLY a JSON array of objects. No intro/outro text.
         5. Provide high variety: budget lodges, student cafes, street food, and hidden monuments.
+        6. For "image", provide a DIRECT Unsplash image URL. Use this exact format: "https://images.unsplash.com/photo-XXXXXXXX?auto=format&fit=crop&w=800&q=80" — pick a REAL Unsplash photo ID that visually matches the place name (e.g. for Taj Mahal use 1548013146-72479768bada, for beach use 1507525428034-b723cf961d3e, for biryani use 1631515243349-e0cb75fb8d3a, for hotel use 1566073771259-6a8506099945, for fort use 1599661046289-e31897846e41). If unsure, use a generic but relevant India travel photo.
         
         Object Schema: { 
             id: unique_number, name: string, type: "Hotels" | "Restaurants" | "Attractions" | "Public Transport", 
-            rating: number, location: string, image: emoji, cost: number, members: number, rooms: number, 
+            rating: number, location: string, image: string (Unsplash URL), cost: number, members: number, rooms: number, 
             studentScore: number, tags: string[], budgetImpact: "🟢 Friendly" | "🟡 Moderate" | "🔴 Expensive", 
             breakdown: { stay: number, food: number, transport: number }
         }.

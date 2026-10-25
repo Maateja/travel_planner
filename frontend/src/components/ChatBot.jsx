@@ -68,7 +68,7 @@ const ChatBot = () => {
     return userData.full_name?.split(' ')[0] || userData.username || 'Explorer';
   });
   const [messages, setMessages] = useState(() => {
-    const savedCurrentChat = JSON.parse(sessionStorage.getItem('bagsup_current_chat') || 'null');
+    const savedCurrentChat = JSON.parse(sessionStorage.getItem('prayanam_current_chat') || 'null');
     if (savedCurrentChat && savedCurrentChat.length > 0) {
       return savedCurrentChat;
     }
@@ -77,7 +77,7 @@ const ChatBot = () => {
     return [
       {
         role: 'assistant',
-        content: `Hey ${name} 👋 Ready to plan your next adventure? I'm your BagsUp AI Travel Assistant!`
+        content: `Hey ${name} 👋 Ready to plan your next adventure? I'm your Prayanam AI Travel Assistant!`
       }
     ];
   });
@@ -86,19 +86,19 @@ const ChatBot = () => {
   const messagesEndRef = useRef(null);
 
   const [chatSessions, setChatSessions] = useState(() => {
-    return JSON.parse(sessionStorage.getItem('bagsup_chat_sessions') || '[]');
+    return JSON.parse(sessionStorage.getItem('prayanam_chat_sessions') || '[]');
   });
 
   // Save current chat automatically
   useEffect(() => {
     if (messages.length > 0) {
-        sessionStorage.setItem('bagsup_current_chat', JSON.stringify(messages));
+        sessionStorage.setItem('prayanam_current_chat', JSON.stringify(messages));
     }
   }, [messages]);
 
   // Save history automatically
   useEffect(() => {
-      sessionStorage.setItem('bagsup_chat_sessions', JSON.stringify(chatSessions));
+      sessionStorage.setItem('prayanam_chat_sessions', JSON.stringify(chatSessions));
   }, [chatSessions]);
 
   const startNewChat = () => {
@@ -205,7 +205,7 @@ const ChatBot = () => {
                    <TravelBotAvatar isHovered={true} isTyping={loading} />
                 </div>
                 <div>
-                  <h3 className="text-white font-black text-[11px] uppercase tracking-tighter">BagsUp Assistant</h3>
+                  <h3 className="text-white font-black text-[11px] uppercase tracking-tighter">Prayanam Assistant</h3>
                   <div className="flex items-center gap-1.5 ">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                     <span className="text-[8px] text-white/50 font-black uppercase tracking-widest">Online</span>
@@ -338,8 +338,8 @@ const ChatBot = () => {
                                     onClick={() => {
                                         setChatSessions([]);
                                         setMessages([{ role: 'assistant', content: `Hey ${userName} 👋 I've cleared the chat for you. Where to next?` }]);
-                                        sessionStorage.removeItem('bagsup_chat_sessions');
-                                        sessionStorage.removeItem('bagsup_current_chat');
+                                        sessionStorage.removeItem('prayanam_chat_sessions');
+                                        sessionStorage.removeItem('prayanam_current_chat');
                                         setActiveTab('chat');
                                     }}
                                     className="text-[9px] font-black text-primary-500 uppercase tracking-widest hover:text-primary-600 transition-colors"

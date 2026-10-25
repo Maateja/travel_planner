@@ -61,70 +61,121 @@ function BudgetPlanner() {
   };
 
   const savedPlaces = useMemo(() => [
-    // --- HOTELS ---
-    { id: 1, name: 'The Taj Mahal Palace', type: 'Hotels', rating: 4.8, location: 'Mumbai, MH', image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=800&q=80", cost: 12000, members: 2, rooms: 1, studentScore: 6, tags: ['Iconic', 'Luxury', 'Safe'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
-    { id: 5, name: 'Rambagh Palace', type: 'Hotels', rating: 4.9, location: 'Jaipur, RJ', image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80", cost: 15000, members: 2, rooms: 1, studentScore: 4, tags: ['Royal', 'Heritage'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
-    { id: 17, name: 'Wildflower Hall', type: 'Hotels', rating: 4.8, location: 'Shimla, HP', image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80", cost: 8500, members: 2, rooms: 1, studentScore: 5, tags: ['Mountains', 'Views'], budgetImpact: '🔴 Expensive', breakdown: { stay: 75, food: 15, transport: 10 } },
-    { id: 32, name: 'Khyber Resort', type: 'Hotels', rating: 4.7, location: 'Gulmarg, JK', image: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80", cost: 7000, members: 2, rooms: 1, studentScore: 6, tags: ['Snow', 'Skiing'], budgetImpact: '🔴 Expensive', breakdown: { stay: 70, food: 20, transport: 10 } },
-    { id: 59, name: 'The Tamara Coorg', type: 'Hotels', rating: 4.8, location: 'Coorg, KA', image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80", cost: 4500, members: 2, rooms: 1, studentScore: 8, tags: ['Nature', 'Coffee'], budgetImpact: '🟡 Moderate', breakdown: { stay: 65, food: 25, transport: 10 } },
+    // --- HOTELS (updated with accurate keyword-targeted images) ---
+    { id: 1, name: 'The Taj Mahal Palace', type: 'Hotels', rating: 4.8, location: 'Mumbai, MH', image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80", cost: 12000, members: 2, rooms: 1, studentScore: 6, tags: ['Iconic', 'Luxury', 'Safe'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
+    { id: 5, name: 'Rambagh Palace', type: 'Hotels', rating: 4.9, location: 'Jaipur, RJ', image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=800&q=80", cost: 15000, members: 2, rooms: 1, studentScore: 4, tags: ['Royal', 'Heritage'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
+    { id: 17, name: 'Wildflower Hall', type: 'Hotels', rating: 4.8, location: 'Shimla, HP', image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80", cost: 8500, members: 2, rooms: 1, studentScore: 5, tags: ['Mountains', 'Views'], budgetImpact: '🔴 Expensive', breakdown: { stay: 75, food: 15, transport: 10 } },
+    { id: 32, name: 'Khyber Resort', type: 'Hotels', rating: 4.7, location: 'Gulmarg, JK', image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80", cost: 7000, members: 2, rooms: 1, studentScore: 6, tags: ['Snow', 'Skiing'], budgetImpact: '🔴 Expensive', breakdown: { stay: 70, food: 20, transport: 10 } },
+    { id: 59, name: 'The Tamara Coorg', type: 'Hotels', rating: 4.8, location: 'Coorg, KA', image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80", cost: 4500, members: 2, rooms: 1, studentScore: 8, tags: ['Nature', 'Coffee'], budgetImpact: '🟡 Moderate', breakdown: { stay: 65, food: 25, transport: 10 } },
     { id: 62, name: 'Hostel Hayat', type: 'Hotels', rating: 4.4, location: 'Bengaluru, KA', image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80", cost: 800, members: 1, rooms: 0.5, studentScore: 10, tags: ['Student Favorite', 'Budget'], budgetImpact: '🟢 Friendly', breakdown: { stay: 50, food: 30, transport: 20 } },
 
-    // --- RESTAURANTS ---
+    // --- RESTAURANTS (accurate food images) ---
     { id: 2, name: 'Bademiya Kebab', type: 'Restaurants', rating: 4.5, location: 'Colaba, Mumbai', image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=800&q=80", cost: 450, studentScore: 9, tags: ['Cheap Food', 'Street Art'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
     { id: 4, name: 'Leopold Cafe', type: 'Restaurants', rating: 4.2, location: 'Colaba, Mumbai', image: "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80", cost: 600, studentScore: 8, tags: ['Historic', 'Students'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 85, transport: 15 } },
-    { id: 40, name: 'Vidyarthi Bhavan', type: 'Restaurants', rating: 4.8, location: 'Bengaluru, KA', image: "https://images.unsplash.com/photo-1630383249896-424e482df921?auto=format&fit=crop&w=800&q=80", cost: 120, studentScore: 10, tags: ['Near Colleges', 'Legendary'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
+    { id: 40, name: 'Vidyarthi Bhavan', type: 'Restaurants', rating: 4.8, location: 'Bengaluru, KA', image: "https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=800&q=80", cost: 120, studentScore: 10, tags: ['Near Colleges', 'Legendary'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
     { id: 63, name: 'Blue Poppy', type: 'Restaurants', rating: 4.5, location: 'Kolkata, WB', image: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80", cost: 350, studentScore: 9, tags: ['Best Momos', 'Cheap Eats'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
 
-    // --- ATTRACTIONS ---
-    { id: 3, name: 'Gateway of India', type: 'Attractions', rating: 4.7, location: 'Mumbai, MH', image: "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Free Entry', 'Instagram'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 30, transport: 70 } },
-    { id: 7, name: 'Taj Mahal', type: 'Attractions', rating: 5.0, location: 'Agra, UP', image: "https://images.unsplash.com/photo-1564507592333-c60657451dd6?auto=format&fit=crop&w=800&q=80", cost: 1100, studentScore: 7, tags: ['Must Visit', 'Heritage'], budgetImpact: '🔴 Expensive', breakdown: { stay: 0, food: 40, transport: 60 } },
-    { id: 16, name: 'Golden Temple', type: 'Attractions', rating: 4.9, location: 'Amritsar, PB', image: "https://images.unsplash.com/photo-1518792528501-352f829886dc?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Spiritual', 'Free Food'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
-    { id: 21, name: 'Munnar Tea Gardens', type: 'Attractions', rating: 4.7, location: 'Munnar, KL', image: "https://images.unsplash.com/photo-1597735881932-d9664c9bbcea?auto=format&fit=crop&w=800&q=80", cost: 200, studentScore: 9, tags: ['Nature', 'Cheap Spots'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    // --- ATTRACTIONS (accurate landmark images) ---
+    { id: 3, name: 'Gateway of India', type: 'Attractions', rating: 4.7, location: 'Mumbai, MH', image: "https://images.unsplash.com/photo-1529253355930-ddbe423a2ac7?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Free Entry', 'Instagram'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 30, transport: 70 } },
+    { id: 7, name: 'Taj Mahal', type: 'Attractions', rating: 5.0, location: 'Agra, UP', image: "https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=800&q=80", cost: 1100, studentScore: 7, tags: ['Must Visit', 'Heritage'], budgetImpact: '🔴 Expensive', breakdown: { stay: 0, food: 40, transport: 60 } },
+    { id: 16, name: 'Golden Temple', type: 'Attractions', rating: 4.9, location: 'Amritsar, PB', image: "https://images.unsplash.com/photo-1585506942812-e72b29cef752?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Spiritual', 'Free Food'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
+    { id: 21, name: 'Munnar Tea Gardens', type: 'Attractions', rating: 4.7, location: 'Munnar, KL', image: "https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=800&q=80", cost: 200, studentScore: 9, tags: ['Nature', 'Cheap Spots'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
     
-    // --- HYDERABAD SPECIALS ---
-    { id: 101, name: 'ITC Kohenur', type: 'Hotels', rating: 4.8, location: 'Hyderabad, TS', image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80", cost: 9500, members: 2, rooms: 1, studentScore: 7, tags: ['Luxury', 'Business'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
-    { id: 102, name: 'Paradise Biryani', type: 'Restaurants', rating: 4.6, location: 'Secunderabad, Hyderabad', image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80", cost: 500, studentScore: 9, tags: ['Legendary', 'Biryani'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
-    { id: 103, name: 'Charminar', type: 'Attractions', rating: 4.9, location: 'Hyderabad, TS', image: "https://images.unsplash.com/photo-1572449043416-55f4685c9bb7?auto=format&fit=crop&w=800&q=80", cost: 50, studentScore: 10, tags: ['Historic', 'Iconic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
-    { id: 104, name: 'Hyderabad Metro Hub', type: 'Attractions', rating: 4.5, location: 'Ameerpet, Hyderabad', image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80", cost: 40, studentScore: 10, tags: ['Transport', 'Connected'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
+    // --- HYDERABAD ---
+    { id: 101, name: 'ITC Kohenur', type: 'Hotels', rating: 4.8, location: 'Hyderabad, TS', image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80", cost: 9500, members: 2, rooms: 1, studentScore: 7, tags: ['Luxury', 'Business'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
+    { id: 102, name: 'Paradise Biryani', type: 'Restaurants', rating: 4.6, location: 'Secunderabad, Hyderabad', image: "https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=800&q=80", cost: 500, studentScore: 9, tags: ['Legendary', 'Biryani'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
+    { id: 103, name: 'Charminar', type: 'Attractions', rating: 4.9, location: 'Hyderabad, TS', image: "https://images.unsplash.com/photo-1595658658481-d53d3f999875?auto=format&fit=crop&w=800&q=80", cost: 50, studentScore: 10, tags: ['Historic', 'Iconic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 104, name: 'Hyderabad Metro Hub', type: 'Attractions', rating: 4.5, location: 'Ameerpet, Hyderabad', image: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=800&q=80", cost: 40, studentScore: 10, tags: ['Transport', 'Connected'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
     
-    // --- TRIVANDRUM FALLBACKS ---
-    { id: 201, name: 'Hyatt Regency Trivandrum', type: 'Hotels', rating: 4.7, location: 'Trivandrum, KL', image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80", cost: 7500, members: 2, rooms: 1, studentScore: 6, tags: ['Modern', 'Luxury'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
-    { id: 202, name: 'Zam Zam Restaurant', type: 'Restaurants', rating: 4.5, location: 'Palayam, Trivandrum', image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80", cost: 400, studentScore: 9, tags: ['Famous', 'Non-Veg'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
-    { id: 203, name: 'Padmanabhaswamy Temple', type: 'Attractions', rating: 4.9, location: 'Trivandrum, KL', image: "https://images.unsplash.com/photo-1621427640857-40a616594e5f?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Iconic', 'Free'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
-    { id: 204, name: 'Napier Museum', type: 'Attractions', rating: 4.6, location: 'Trivandrum, KL', image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80", cost: 20, studentScore: 10, tags: ['Heritage', 'Student Entry'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
-    { id: 205, name: 'KSRTC City Hub', type: 'Attractions', rating: 4.4, location: 'East Fort, Trivandrum', image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=800&q=80", cost: 15, studentScore: 10, tags: ['Local Bus', 'Cheap Transport'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 5, transport: 95 } },
+    // --- TRIVANDRUM ---
+    { id: 201, name: 'Hyatt Regency Trivandrum', type: 'Hotels', rating: 4.7, location: 'Trivandrum, KL', image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=800&q=80", cost: 7500, members: 2, rooms: 1, studentScore: 6, tags: ['Modern', 'Luxury'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
+    { id: 202, name: 'Zam Zam Restaurant', type: 'Restaurants', rating: 4.5, location: 'Palayam, Trivandrum', image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80", cost: 400, studentScore: 9, tags: ['Famous', 'Non-Veg'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
+    { id: 203, name: 'Padmanabhaswamy Temple', type: 'Attractions', rating: 4.9, location: 'Trivandrum, KL', image: "https://images.unsplash.com/photo-1583243536442-5923958b8028?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Iconic', 'Free'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 204, name: 'Napier Museum', type: 'Attractions', rating: 4.6, location: 'Trivandrum, KL', image: "https://images.unsplash.com/photo-1577083552792-a0d941aa1c09?auto=format&fit=crop&w=800&q=80", cost: 20, studentScore: 10, tags: ['Heritage', 'Student Entry'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
+    { id: 205, name: 'KSRTC City Hub', type: 'Attractions', rating: 4.4, location: 'East Fort, Trivandrum', image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80", cost: 15, studentScore: 10, tags: ['Local Bus', 'Cheap Transport'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 5, transport: 95 } },
 
-    // --- MANALI FALLBACKS ---
+    // --- MANALI ---
     { id: 301, name: 'The Himalayan', type: 'Hotels', rating: 4.8, location: 'Manali, HP', image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80", cost: 6500, members: 2, rooms: 1, studentScore: 7, tags: ['Views', 'Castle'], budgetImpact: '🔴 Expensive', breakdown: { stay: 70, food: 20, transport: 10 } },
     { id: 302, name: 'Johnson Cafe', type: 'Restaurants', rating: 4.4, location: 'Old Manali', image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80", cost: 800, studentScore: 8, tags: ['Music', 'Trout'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 85, transport: 15 } },
-    { id: 303, name: 'Solang Valley', type: 'Attractions', rating: 4.7, location: 'Manali, HP', image: "https://images.unsplash.com/photo-1626014303462-b8085a2b04f5?auto=format&fit=crop&w=800&q=80", cost: 500, studentScore: 9, tags: ['Adventure', 'Snow'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 30, transport: 70 } },
+    { id: 303, name: 'Solang Valley', type: 'Attractions', rating: 4.7, location: 'Manali, HP', image: "https://images.unsplash.com/photo-1626010448982-5d629afa13ea?auto=format&fit=crop&w=800&q=80", cost: 500, studentScore: 9, tags: ['Adventure', 'Snow'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 30, transport: 70 } },
 
-    // --- GOA FALLBACKS ---
-    { id: 401, name: 'W Goa', type: 'Hotels', rating: 4.6, location: 'Vagator, Goa', image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80", cost: 18000, members: 2, rooms: 1, studentScore: 5, tags: ['Beachfront', 'Party'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
+    // --- GOA ---
+    { id: 401, name: 'W Goa', type: 'Hotels', rating: 4.6, location: 'Vagator, Goa', image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80", cost: 18000, members: 2, rooms: 1, studentScore: 5, tags: ['Beachfront', 'Party'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
     { id: 402, name: 'Curlies Beach Shack', type: 'Restaurants', rating: 4.3, location: 'Anjuna, Goa', image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80", cost: 1200, studentScore: 8, tags: ['Hippie', 'Sunsets'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 70, transport: 30 } },
-    { id: 403, name: 'Fort Aguada', type: 'Attractions', rating: 4.5, location: 'Candolim, Goa', image: "https://images.unsplash.com/photo-1587922546307-776227941871?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['History', 'Free'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
+    { id: 403, name: 'Fort Aguada', type: 'Attractions', rating: 4.5, location: 'Candolim, Goa', image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['History', 'Free'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
 
-    // --- MADANAPALLE FALLBACKS ---
+    // --- MADANAPALLE ---
     { id: 501, name: 'SSR Residency', type: 'Hotels', rating: 4.2, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=800&q=80", cost: 1200, members: 2, rooms: 1, studentScore: 9, tags: ['Budget', 'Main Road'], budgetImpact: '🟢 Friendly', breakdown: { stay: 85, food: 10, transport: 5 } },
     { id: 505, name: 'Hotel Srinivaas', type: 'Hotels', rating: 4.0, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80", cost: 1500, members: 2, rooms: 1, studentScore: 8, tags: ['Central', 'Clean'], budgetImpact: '🟢 Friendly', breakdown: { stay: 80, food: 15, transport: 5 } },
-    { id: 502, name: 'B.T. College', type: 'Attractions', rating: 4.5, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Historic', 'Campus'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 502, name: 'B.T. College', type: 'Attractions', rating: 4.5, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Historic', 'Campus'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
     { id: 503, name: 'Horsley Hills', type: 'Attractions', rating: 4.8, location: 'Near Madanapalle', image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80", cost: 100, studentScore: 10, tags: ['Hill Station', 'Nature'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 30, transport: 70 } },
     { id: 506, name: 'Rishi Valley School', type: 'Attractions', rating: 4.6, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 9, tags: ['Educational', 'Iconic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
     { id: 504, name: 'Nandini Restaurant', type: 'Restaurants', rating: 4.1, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1567337710282-00832b415979?auto=format&fit=crop&w=800&q=80", cost: 250, studentScore: 10, tags: ['South Indian', 'Cheap'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
     { id: 507, name: 'New Highway Biryani', type: 'Restaurants', rating: 4.3, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80", cost: 350, studentScore: 9, tags: ['Biryani', 'Students'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
     { id: 508, name: 'Coffee Day Madanapalle', type: 'Restaurants', rating: 4.0, location: 'Madanapalle, AP', image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80", cost: 300, studentScore: 8, tags: ['Hangout', 'Cafe'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 80, transport: 20 } },
 
-    // --- CHENNAI FALLBACKS ---
-    { id: 601, name: 'ITC Grand Chola', type: 'Hotels', rating: 4.9, location: 'Guindy, Chennai', image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80", cost: 12000, members: 2, rooms: 1, studentScore: 5, tags: ['Palatial', 'Luxury'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
+    // --- CHENNAI ---
+    { id: 601, name: 'ITC Grand Chola', type: 'Hotels', rating: 4.9, location: 'Guindy, Chennai', image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=800&q=80", cost: 12000, members: 2, rooms: 1, studentScore: 5, tags: ['Palatial', 'Luxury'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
     { id: 602, name: 'Ginger Hotel Chennai', type: 'Hotels', rating: 4.0, location: 'IITM Research Park', image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80", cost: 3500, members: 2, rooms: 1, studentScore: 9, tags: ['Safe', 'Budget'], budgetImpact: '🟢 Friendly', breakdown: { stay: 75, food: 20, transport: 5 } },
     { id: 603, name: 'Holiday Inn Express', type: 'Hotels', rating: 4.2, location: 'OMR, Chennai', image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80", cost: 4500, members: 2, rooms: 1, studentScore: 8, tags: ['Modern', 'Student Area'], budgetImpact: '🟡 Moderate', breakdown: { stay: 80, food: 15, transport: 5 } },
-    { id: 604, name: 'Treebo Trend Trend', type: 'Hotels', rating: 3.8, location: 'T. Nagar, Chennai', image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80", cost: 2200, members: 2, rooms: 1, studentScore: 9, tags: ['Central', 'Affordable'], budgetImpact: '🟢 Friendly', breakdown: { stay: 85, food: 10, transport: 5 } },
-    { id: 605, name: 'Murugan Idli Shop', type: 'Restaurants', rating: 4.5, location: 'Besant Nagar', image: "https://images.unsplash.com/photo-1630383249896-424e482df921?auto=format&fit=crop&w=800&q=80", cost: 300, studentScore: 10, tags: ['Famous', 'Authentic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
+    { id: 604, name: 'Treebo Trend', type: 'Hotels', rating: 3.8, location: 'T. Nagar, Chennai', image: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80", cost: 2200, members: 2, rooms: 1, studentScore: 9, tags: ['Central', 'Affordable'], budgetImpact: '🟢 Friendly', breakdown: { stay: 85, food: 10, transport: 5 } },
+    { id: 605, name: 'Murugan Idli Shop', type: 'Restaurants', rating: 4.5, location: 'Besant Nagar', image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=800&q=80", cost: 300, studentScore: 10, tags: ['Famous', 'Authentic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
     { id: 606, name: 'Marina Beach Sundal', type: 'Restaurants', rating: 4.4, location: 'Marina Beach', image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80", cost: 50, studentScore: 10, tags: ['Street Food', 'Iconic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 50, transport: 50 } },
     { id: 607, name: 'Amelies Cafe', type: 'Restaurants', rating: 4.2, location: 'Alwarpet, Chennai', image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80", cost: 800, studentScore: 8, tags: ['Aesthetic', 'Hangout'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 90, transport: 10 } },
     { id: 608, name: 'Marina Beach', type: 'Attractions', rating: 4.7, location: 'Chennai, TN', image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Beach', 'Free'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 40, transport: 60 } },
     { id: 609, name: 'Guindy National Park', type: 'Attractions', rating: 4.3, location: 'Chennai, TN', image: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80", cost: 20, studentScore: 10, tags: ['Nature', 'Wildlife'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
     { id: 610, name: 'VGP Universal Kingdom', type: 'Attractions', rating: 4.1, location: 'ECR, Chennai', image: "https://images.unsplash.com/photo-1513889961551-628c1e5e2ee9?auto=format&fit=crop&w=800&q=80", cost: 800, studentScore: 7, tags: ['Amusement', 'Fun'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 30, transport: 70 } },
+
+    // --- NEW: DELHI ---
+    { id: 701, name: 'The Oberoi New Delhi', type: 'Hotels', rating: 4.9, location: 'New Delhi, DL', image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80", cost: 16000, members: 2, rooms: 1, studentScore: 5, tags: ['Luxury', 'Central'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
+    { id: 702, name: 'Karims', type: 'Restaurants', rating: 4.6, location: 'Jama Masjid, Delhi', image: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80", cost: 400, studentScore: 9, tags: ['Mughlai', 'Legendary'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
+    { id: 703, name: 'Red Fort', type: 'Attractions', rating: 4.7, location: 'New Delhi, DL', image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=800&q=80", cost: 35, studentScore: 10, tags: ['Heritage', 'Historic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 704, name: 'India Gate', type: 'Attractions', rating: 4.8, location: 'New Delhi, DL', image: "https://images.unsplash.com/photo-1536420387107-0d7b24b5cbea?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Free', 'Iconic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 705, name: 'Zostel Delhi', type: 'Hotels', rating: 4.5, location: 'Paharganj, Delhi', image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80", cost: 900, members: 1, rooms: 0.5, studentScore: 10, tags: ['Backpacker', 'Budget'], budgetImpact: '🟢 Friendly', breakdown: { stay: 60, food: 25, transport: 15 } },
+
+    // --- NEW: JAIPUR ---
+    { id: 706, name: 'Hawa Mahal', type: 'Attractions', rating: 4.8, location: 'Jaipur, RJ', image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80", cost: 50, studentScore: 10, tags: ['Pink City', 'Iconic'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 707, name: 'Amer Fort', type: 'Attractions', rating: 4.9, location: 'Jaipur, RJ', image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80", cost: 100, studentScore: 9, tags: ['Fort', 'Heritage'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 708, name: 'LMB Restaurant', type: 'Restaurants', rating: 4.5, location: 'Johari Bazaar, Jaipur', image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80", cost: 350, studentScore: 9, tags: ['Rajasthani', 'Famous'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
+    { id: 709, name: 'Zostel Jaipur', type: 'Hotels', rating: 4.6, location: 'Jaipur, RJ', image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80", cost: 1100, members: 2, rooms: 1, studentScore: 9, tags: ['Hostel', 'Budget'], budgetImpact: '🟢 Friendly', breakdown: { stay: 65, food: 20, transport: 15 } },
+
+    // --- NEW: UDAIPUR & JODHPUR ---
+    { id: 710, name: 'Taj Lake Palace', type: 'Hotels', rating: 4.9, location: 'Udaipur, RJ', image: "https://images.unsplash.com/photo-1605600659908-0ef719419d41?auto=format&fit=crop&w=800&q=80", cost: 22000, members: 2, rooms: 1, studentScore: 4, tags: ['Lake', 'Royal'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
+    { id: 711, name: 'Lake Pichola', type: 'Attractions', rating: 4.8, location: 'Udaipur, RJ', image: "https://images.unsplash.com/photo-1596402184320-417e7178b2ea?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Lake', 'Sunset'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 30, transport: 70 } },
+    { id: 712, name: 'Mehrangarh Fort', type: 'Attractions', rating: 4.9, location: 'Jodhpur, RJ', image: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80", cost: 80, studentScore: 10, tags: ['Fort', 'Blue City'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+
+    // --- NEW: KERALA ---
+    { id: 713, name: 'Alleppey Backwaters Houseboat', type: 'Hotels', rating: 4.8, location: 'Alleppey, KL', image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80", cost: 5000, members: 2, rooms: 1, studentScore: 8, tags: ['Backwaters', 'Unique'], budgetImpact: '🟡 Moderate', breakdown: { stay: 70, food: 20, transport: 10 } },
+    { id: 714, name: 'Mysore Palace', type: 'Attractions', rating: 4.9, location: 'Mysore, KA', image: "https://images.unsplash.com/photo-1596178060810-4742e9c4d356?auto=format&fit=crop&w=800&q=80", cost: 70, studentScore: 10, tags: ['Royal', 'Palace'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+
+    // --- NEW: VARANASI & KOLKATA ---
+    { id: 715, name: 'Varanasi Ghats', type: 'Attractions', rating: 4.9, location: 'Varanasi, UP', image: "https://images.unsplash.com/photo-1561361058-c24cecae35ca?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Spiritual', 'Ganga'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 716, name: 'Kashi Chaat', type: 'Restaurants', rating: 4.7, location: 'Varanasi, UP', image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80", cost: 150, studentScore: 10, tags: ['Street Food', 'Famous'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 90, transport: 10 } },
+    { id: 717, name: 'Howrah Bridge', type: 'Attractions', rating: 4.6, location: 'Kolkata, WB', image: "https://images.unsplash.com/photo-1558431383-2b9220eb1d89?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Iconic', 'Free'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 718, name: 'Peter Cat', type: 'Restaurants', rating: 4.6, location: 'Park Street, Kolkata', image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80", cost: 500, studentScore: 8, tags: ['Continental', 'Legendary'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 90, transport: 10 } },
+
+    // --- NEW: GOA / MUMBAI / PONDICHERRY ---
+    { id: 719, name: 'Baga Beach', type: 'Attractions', rating: 4.6, location: 'Goa', image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Beach', 'Party'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 40, transport: 60 } },
+    { id: 720, name: 'Leopold Expansion - Britannia & Co', type: 'Restaurants', rating: 4.4, location: 'Ballard Estate, Mumbai', image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80", cost: 650, studentScore: 8, tags: ['Parsi', 'Iconic'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 85, transport: 15 } },
+    { id: 721, name: 'French Colony White Town', type: 'Attractions', rating: 4.7, location: 'Pondicherry, PY', image: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['French', 'Instagram'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 30, transport: 70 } },
+
+    // --- NEW: BENGALURU / HYDERABAD / KOCHI ---
+    { id: 722, name: 'Toit Brewpub', type: 'Restaurants', rating: 4.6, location: 'Indiranagar, Bengaluru', image: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?auto=format&fit=crop&w=800&q=80", cost: 900, studentScore: 8, tags: ['Brewpub', 'Hangout'], budgetImpact: '🟡 Moderate', breakdown: { stay: 0, food: 80, transport: 20 } },
+    { id: 723, name: 'Lalbagh Botanical Garden', type: 'Attractions', rating: 4.5, location: 'Bengaluru, KA', image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80", cost: 20, studentScore: 10, tags: ['Garden', 'Nature'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 724, name: 'Sree Sagar (CTR)', type: 'Restaurants', rating: 4.7, location: 'Malleshwaram, Bengaluru', image: "https://images.unsplash.com/photo-1630383249896-424e482df921?auto=format&fit=crop&w=800&q=80", cost: 180, studentScore: 10, tags: ['Dosa', 'Legendary'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 95, transport: 5 } },
+    { id: 725, name: 'Fort Kochi', type: 'Attractions', rating: 4.7, location: 'Kochi, KL', image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Heritage', 'Beach'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+
+    // --- NEW: SHIMLA / LEH / ANDAMAN / RISHIKESH ---
+    { id: 726, name: 'Hadimba Temple', type: 'Attractions', rating: 4.7, location: 'Manali, HP', image: "https://images.unsplash.com/photo-1621427640857-40a616594e5f?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Temple', 'Forest'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 10, transport: 90 } },
+    { id: 727, name: 'Pangong Lake', type: 'Attractions', rating: 5.0, location: 'Leh, Ladakh', image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 9, tags: ['Lake', 'Mountains'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 728, name: 'Radhanagar Beach', type: 'Attractions', rating: 4.9, location: 'Havelock, Andaman', image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Beach', 'Pristine'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 30, transport: 70 } },
+    { id: 729, name: 'Laxman Jhula', type: 'Attractions', rating: 4.6, location: 'Rishikesh, UK', image: "https://images.unsplash.com/photo-1597655601841-214a4cfe8b2c?auto=format&fit=crop&w=800&q=80", cost: 0, studentScore: 10, tags: ['Bridge', 'Spiritual'], budgetImpact: '🟢 Friendly', breakdown: { stay: 0, food: 20, transport: 80 } },
+    { id: 730, name: 'Zostel Rishikesh', type: 'Hotels', rating: 4.5, location: 'Rishikesh, UK', image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80", cost: 850, members: 1, rooms: 0.5, studentScore: 10, tags: ['Hostel', 'Ganga View'], budgetImpact: '🟢 Friendly', breakdown: { stay: 55, food: 30, transport: 15 } },
+
+    // --- NEW: EXTRA HOTELS ---
+    { id: 731, name: 'The Leela Palace', type: 'Hotels', rating: 4.9, location: 'Bengaluru, KA', image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80", cost: 11000, members: 2, rooms: 1, studentScore: 6, tags: ['Palace', 'Luxury'], budgetImpact: '🔴 Expensive', breakdown: { stay: 80, food: 15, transport: 5 } },
+    { id: 732, name: 'Taj Falaknuma Palace', type: 'Hotels', rating: 4.9, location: 'Hyderabad, TS', image: "https://images.unsplash.com/photo-1596178065887-1198b6148b2b?auto=format&fit=crop&w=800&q=80", cost: 18000, members: 2, rooms: 1, studentScore: 4, tags: ['Palace', 'Heritage'], budgetImpact: '🔴 Expensive', breakdown: { stay: 85, food: 10, transport: 5 } },
+    { id: 733, name: 'Sterling Ooty', type: 'Hotels', rating: 4.4, location: 'Ooty, TN', image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80", cost: 3800, members: 2, rooms: 1, studentScore: 8, tags: ['Hill Station', 'Nature'], budgetImpact: '🟡 Moderate', breakdown: { stay: 70, food: 20, transport: 10 } },
   ], []);
 
   const allPlaces = useMemo(() => {
@@ -147,6 +198,23 @@ function BudgetPlanner() {
     return () => clearTimeout(timer);
   }, [citySearch]);
 
+  // Fallback Unsplash images by type — used when AI still returns emoji / broken URL
+  const IMAGE_FALLBACKS = {
+    Hotels: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+    Restaurants: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+    Attractions: "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80",
+    "Public Transport": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+  };
+
+  const normalizeImage = (place) => {
+    const img = place.image;
+    // AI sometimes returns emoji or short string — replace with fallback
+    if (!img || typeof img !== 'string' || !img.startsWith('http') || img.length < 20) {
+      return IMAGE_FALLBACKS[place.type] || IMAGE_FALLBACKS.Attractions;
+    }
+    return img;
+  };
+
   const handleCitySearch = async () => {
     if (!citySearch || citySearch.length < 3) return;
     setLoading(true);
@@ -155,7 +223,9 @@ function BudgetPlanner() {
     setAiPlaces([]); // Clear old results to show fresh start
     try {
       const response = await api.get(`/destinations/city-details?city=${citySearch}`);
-      setAiPlaces(response.data);
+      // Normalize images for AI results — fix emoji / missing http URLs
+      const normalized = (response.data || []).map(p => ({ ...p, image: normalizeImage(p) }));
+      setAiPlaces(normalized);
     } catch (error) {
       console.error("Discovery failed:", error);
       setErrorMsg(error.response?.data?.message || "Something went wrong with AI Discovery.");
@@ -358,77 +428,77 @@ function BudgetPlanner() {
                   {/* Card Image Area */}
                   <div className="h-48 bg-gray-50 rounded-[32px] flex items-center justify-center text-6xl relative overflow-hidden mb-6">
                      <div className="absolute inset-0 bg-gradient-to-tr from-gray-50/50 via-transparent to-primary-50/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                     {place.image?.startsWith("http") ? <img src={place.image} alt={place.name} className="w-full h-full object-cover rounded-[32px] group-hover:scale-110 transition-transform duration-700" /> : <span className="group-hover:scale-110 transition-transform duration-700">{place.image}</span>}
+                      {place.image?.startsWith("http") ? <img src={place.image} alt={place.name} onError={(e)=>{e.currentTarget.src=IMAGE_FALLBACKS[place.type]||IMAGE_FALLBACKS.Attractions; e.currentTarget.onerror=null;}} className="w-full h-full object-cover rounded-[32px] group-hover:scale-110 transition-transform duration-700" /> : <span className="group-hover:scale-110 transition-transform duration-700">{place.image}</span>}
 
-                     {/* Checkbox for Compare */}
-                     <button 
-                        onClick={() => toggleCompare(place.id)}
-                        className={`absolute top-6 left-6 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-primary-500 border-primary-500 text-white' : 'bg-white/80 backdrop-blur-md border-gray-200 text-transparent'}`}
-                      >
-                        <CheckCircle2 size={16} />
+                      {/* Checkbox for Compare */}
+                      <button 
+                         onClick={() => toggleCompare(place.id)}
+                         className={`absolute top-6 left-6 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${isSelected ? 'bg-primary-500 border-primary-500 text-white' : 'bg-white/80 backdrop-blur-md border-gray-200 text-transparent'}`}
+                       >
+                         <CheckCircle2 size={16} />
                       </button>
-                  </div>
+                   </div>
 
-                  <div className="px-4 pb-4 space-y-4">
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="font-black text-gray-900 uppercase tracking-tighter text-xl group-hover:text-primary-600 transition-colors flex-1">{place.name}</h4>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); toggleSave(place.id); }}
-                          className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 ${savedPlaceIds.includes(place.id) ? 'bg-primary-50 text-primary-500 shadow-sm' : 'bg-gray-50 text-gray-300 hover:text-primary-400 hover:bg-primary-50/50'}`}
-                          title={savedPlaceIds.includes(place.id) ? 'Remove from saved' : 'Save place'}
-                        >
-                          <Bookmark size={18} fill={savedPlaceIds.includes(place.id) ? 'currentColor' : 'none'} />
-                        </button>
-                      </div>
-                      <p className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-2">
-                        <MapPin size={12} className="text-primary-400" /> {place.location}
-                      </p>
-                    </div>
+                   <div className="px-4 pb-4 space-y-4">
+                     <div>
+                       <div className="flex items-start justify-between gap-2">
+                         <h4 className="font-black text-gray-900 uppercase tracking-tighter text-xl group-hover:text-primary-600 transition-colors flex-1">{place.name}</h4>
+                         <button
+                           onClick={(e) => { e.stopPropagation(); toggleSave(place.id); }}
+                           className={`p-2 rounded-xl transition-all duration-300 flex-shrink-0 ${savedPlaceIds.includes(place.id) ? 'bg-primary-50 text-primary-500 shadow-sm' : 'bg-gray-50 text-gray-300 hover:text-primary-400 hover:bg-primary-50/50'}`}
+                           title={savedPlaceIds.includes(place.id) ? 'Remove from saved' : 'Save place'}
+                         >
+                           <Bookmark size={18} fill={savedPlaceIds.includes(place.id) ? 'currentColor' : 'none'} />
+                         </button>
+                       </div>
+                       <p className="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mt-2">
+                         <MapPin size={12} className="text-primary-400" /> {place.location}
+                       </p>
+                     </div>
 
-                    {/* Hotel Specific Details */}
-                    {place.type === 'Hotels' && (
-                      <div className="pt-3 border-t border-gray-50 flex flex-col gap-2">
-                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
-                          <span>Per Night</span>
-                          <span className="text-gray-900 text-sm">₹{place.cost.toLocaleString()}</span>
-                        </div>
-                        <div className="flex gap-4 text-[9px] font-bold text-gray-500 uppercase tracking-wider">
-                          <span className="bg-gray-50 px-2 py-1 rounded-md">{place.members} Members</span>
-                          <span className="bg-gray-50 px-2 py-1 rounded-md">{place.rooms} {place.rooms === 1 ? 'Room' : 'Rooms'}</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        )}
-        {view === 'saved' && !loading && (() => {
-          const savedItems = allPlaces.filter(p => savedPlaceIds.includes(p.id));
-          return savedItems.length > 0 ? (
-            <div className="space-y-6 pb-20">
-              <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-3">
-                  <Bookmark size={24} className="text-primary-500" fill="currentColor" /> Your Saved Places
-                  <span className="bg-primary-100 text-primary-600 text-xs font-black px-3 py-1 rounded-full">{savedItems.length}</span>
-                </h3>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                  Total Est. Cost: <span className="text-gray-900 text-sm">₹{savedItems.reduce((s, p) => s + (p.cost || 0), 0).toLocaleString()}</span>
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {savedItems.map((place, idx) => (
-                  <motion.div
-                    key={place.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="bg-white rounded-[40px] border border-primary-100 shadow-sm hover:shadow-xl hover:shadow-primary-100/50 transition-all flex flex-col relative overflow-hidden group p-4"
-                  >
-                    <div className="h-48 bg-gray-50 rounded-[32px] flex items-center justify-center text-6xl relative overflow-hidden mb-6">
-                      {place.image?.startsWith("http") ? <img src={place.image} alt={place.name} className="w-full h-full object-cover rounded-[32px] group-hover:scale-110 transition-transform duration-700" /> : <span>{place.image}</span>}
+                     {/* Hotel Specific Details */}
+                     {place.type === 'Hotels' && (
+                       <div className="pt-3 border-t border-gray-50 flex flex-col gap-2">
+                         <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+                           <span>Per Night</span>
+                           <span className="text-gray-900 text-sm">₹{place.cost.toLocaleString()}</span>
+                         </div>
+                         <div className="flex gap-4 text-[9px] font-bold text-gray-500 uppercase tracking-wider">
+                           <span className="bg-gray-50 px-2 py-1 rounded-md">{place.members} Members</span>
+                           <span className="bg-gray-50 px-2 py-1 rounded-md">{place.rooms} {place.rooms === 1 ? 'Room' : 'Rooms'}</span>
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                 </motion.div>
+               );
+             })}
+           </div>
+         )}
+         {view === 'saved' && !loading && (() => {
+           const savedItems = allPlaces.filter(p => savedPlaceIds.includes(p.id));
+           return savedItems.length > 0 ? (
+             <div className="space-y-6 pb-20">
+               <div className="flex items-center justify-between">
+                 <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tighter flex items-center gap-3">
+                   <Bookmark size={24} className="text-primary-500" fill="currentColor" /> Your Saved Places
+                   <span className="bg-primary-100 text-primary-600 text-xs font-black px-3 py-1 rounded-full">{savedItems.length}</span>
+                 </h3>
+                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                   Total Est. Cost: <span className="text-gray-900 text-sm">₹{savedItems.reduce((s, p) => s + (p.cost || 0), 0).toLocaleString()}</span>
+                 </p>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                 {savedItems.map((place, idx) => (
+                   <motion.div
+                     key={place.id}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: idx * 0.05 }}
+                     className="bg-white rounded-[40px] border border-primary-100 shadow-sm hover:shadow-xl hover:shadow-primary-100/50 transition-all flex flex-col relative overflow-hidden group p-4"
+                   >
+                     <div className="h-48 bg-gray-50 rounded-[32px] flex items-center justify-center text-6xl relative overflow-hidden mb-6">
+                       {place.image?.startsWith("http") ? <img src={place.image} alt={place.name} onError={(e)=>{e.currentTarget.src=IMAGE_FALLBACKS[place.type]||IMAGE_FALLBACKS.Attractions; e.currentTarget.onerror=null;}} className="w-full h-full object-cover rounded-[32px] group-hover:scale-110 transition-transform duration-700" /> : <span>{place.image}</span>}
                       <div className="absolute top-4 right-4 bg-primary-500 text-white p-2 rounded-full shadow-lg">
                         <Bookmark size={16} fill="currentColor" />
                       </div>

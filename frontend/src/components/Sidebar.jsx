@@ -41,7 +41,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               alt="Logo" 
               className="w-16 h-16 md:w-20 md:h-20 object-contain" 
             />
-            <span className="font-black text-2xl text-gray-900 tracking-tighter uppercase whitespace-nowrap">BAGS UP</span>
+            <span className="font-black text-2xl text-gray-900 tracking-tighter uppercase whitespace-nowrap">Prayanam</span>
           </div>
           <button 
             onClick={() => setIsOpen(false)}
