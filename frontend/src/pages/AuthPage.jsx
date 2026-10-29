@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import api from '../api';
 import { GoogleLogin } from '@react-oauth/google';
-import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
+import { MapPin, Globe, Compass, Sparkles, User, Lock, Mail, ArrowRight, ArrowUpRight, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoading } from '../context/LoadingContext';
 
@@ -423,6 +423,19 @@ function AuthPage({ isLogin = false, isLanding = false }) {
         </div>
         )}
       </div>
+
+      {/* Bottom Right Privacy Policy Link (for Landing Page) */}
+      {isLanding && (
+        <div className="fixed bottom-6 right-6 md:right-10 z-40">
+          <Link
+            to="/privacy-policy"
+            className="group inline-flex items-center gap-1.5 text-gray-200 hover:text-white text-sm md:text-base font-normal tracking-wide transition-colors duration-200 drop-shadow-md"
+          >
+            <span className="hover:underline">Privacy Policy</span>
+            <ArrowUpRight size={18} className="stroke-[1.75] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
