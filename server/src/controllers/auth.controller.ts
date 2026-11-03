@@ -77,18 +77,19 @@ async function sendMailWithFallback(emailUser: string, emailPass: string, mailOp
 
 async function sendEmailNotification(payload: EmailPayload) {
     const brevoApiKey = (process.env.BREVO_API_KEY || "").trim();
-    const senderEmail = (process.env.EMAIL_USER || "naikmteja@gmail.com").trim();
+    const senderEmail = (process.env.EMAIL_USER || "prayanamsupport@gmail.com").trim();
 
     // 1. Try Brevo REST API (HTTPS port 443 — works seamlessly on Render Free Tier)
     if (brevoApiKey) {
         try {
-            console.log(`[Email] Attempting Brevo HTTP API to ${payload.to}...`);
+            console.log(`[Email] Attempting Brevo HTTP API to ${payload.to} from ${senderEmail}...`);
             const res = await fetch('https://api.brevo.com/v3/smtp/email', {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
                     'api-key': brevoApiKey,
-                    'content-type': 'application/json'
+                    'content-type': 'application/json',
+                    'user-agent': 'Prayanam-App/1.0'
                 },
                 body: JSON.stringify({
                     sender: { name: 'Prayanam', email: senderEmail },
@@ -104,10 +105,15 @@ async function sendEmailNotification(payload: EmailPayload) {
                 console.log(`[Email] Email sent successfully via Brevo! Message ID:`, data?.messageId);
                 return { success: true, provider: 'brevo', data };
             } else {
-                console.warn(`[Email] Brevo API responded with error status ${res.status}:`, data);
+                console.error(`[Email] Brevo API rejected email (${res.status}):`, data);
+                throw new Error(`Brevo API error (${res.status}): ${data?.message || JSON.stringify(data)}`);
             }
         } catch (apiErr: any) {
-            console.warn(`[Email] Brevo HTTP request error:`, apiErr.message);
+            console.error(`[Email] Brevo HTTP error:`, apiErr.message);
+            const emailPass = (process.env.EMAIL_PASS || "").trim();
+            if (!emailPass) {
+                throw apiErr;
+            }
         }
     }
 
@@ -331,13 +337,24 @@ export const register = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
         }
 
-        // Check if user exists
-        const existingUser = await User.findOne({ 
-            $or: [{ email: normalizedEmail }, { username: normalizedUsername }] 
+        // Check if an already verified user exists with this email or username
+        const existingVerifiedUser = await User.findOne({ 
+            $or: [{ email: normalizedEmail }, { username: normalizedUsername }],
+            isVerified: true
         });
-        if (existingUser) {
-            return res.status(400).json({ error: 'An account already exists with this email or username.' });
+        if (existingVerifiedUser) {
+            return res.status(400).json({ 
+                error: existingVerifiedUser.email === normalizedEmail 
+                    ? 'An account already exists with this email address. Please sign in.' 
+                    : 'This username is already taken. Please choose another username.' 
+            });
         }
+
+        // If an unverified registration exists with this email or username, remove it so the user can re-register freshly
+        await User.deleteMany({
+            $or: [{ email: normalizedEmail }, { username: normalizedUsername }],
+            isVerified: false
+        });
 
         // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -396,9 +413,10 @@ export const register = async (req: Request, res: Response) => {
                 });
             } catch (emailErr: any) {
                 console.error("[Auth] Verification email delivery failed:", emailErr.message);
-                return res.status(201).json({ 
-                    message: 'Registration successful! However, the verification email could not be sent. Please contact support.',
-                    warning: 'Email delivery notice: ' + emailErr.message
+                // Clean up unverified record so user is never blocked from trying again
+                await User.findByIdAndDelete(newUser._id).catch(() => {});
+                return res.status(500).json({ 
+                    error: `Verification email could not be delivered (${emailErr.message}). Please ensure your Gmail is correct and try again.`
                 });
             }
         } else {

@@ -56,11 +56,19 @@ function ForgotPassword() {
       </div>
 
       {/* Top Navigation Bar */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4">
-        {/* Left: Logo + Name */}
-        <div className="flex items-center gap-0">
-          <img src="/logo.png" alt="Prayanam Logo" className="w-24 h-24 object-contain drop-shadow-2xl" />
-          <span className="text-4xl font-black text-white tracking-tighter uppercase font-display drop-shadow-lg">Prayanam</span>
+      <div className="fixed top-0 left-0 right-0 z-50 px-6 sm:px-10 lg:px-12 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-1 group ml-0 sm:ml-0">
+            <img src="/logo.png" alt="Prayanam Logo" className="w-13 h-13 md:w-10 md:h-16 object-contain drop-shadow-md group-hover:scale-100 transition-transform" />
+            <span className="text-2xl md:text-3xl font-black text-white tracking-tighter uppercase font-display drop-shadow-md">Prayanam</span>
+          </Link>
+
+          <Link
+            to="/"
+            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-black text-xs sm:text-sm uppercase tracking-wider shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95"
+          >
+            Back to Home
+          </Link>
         </div>
       </div>
 

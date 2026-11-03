@@ -1,0 +1,646 @@
+/* ==============================================================
+   WORKFLOW ACCORDION (GSAP-POWERED 5-STEP VISUAL WORKFLOW)
+   ============================================================== */
+
+.workflow-accordion {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: clamp(480px, 60vh, 560px);
+  gap: 14px;
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  user-select: none;
+}
+
+/* Individual Accordion Panel */
+.wa-panel {
+  position: relative;
+  flex: 1 1 0%;
+  border-radius: 26px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.65);
+  transform-origin: center center;
+  will-change: flex-grow, transform;
+  outline: none;
+}
+
+.wa-panel:focus-visible {
+  box-shadow: 0 0 0 3px #fbbf24, 0 20px 40px rgba(0, 0, 0, 0.8);
+}
+
+.wa-panel--active {
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.8), 0 0 30px rgba(251, 191, 36, 0.15);
+}
+
+.wa-panel__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+/* ==============================================================
+   BASE COLOR LAYERS (Visible when card is COLLAPSED)
+   ============================================================== */
+.wa-panel__base-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.wa-base-dest .wa-panel__base-layer {
+  background: radial-gradient(circle at 30% 70%, #0d9488 0%, #042f2e 55%, #020617 100%);
+}
+
+.wa-base-dates .wa-panel__base-layer {
+  background: radial-gradient(circle at 70% 30%, #4338ca 0%, #1e1b4b 55%, #020617 100%);
+}
+
+.wa-base-budget .wa-panel__base-layer {
+  background: radial-gradient(circle at 40% 60%, #047857 0%, #064e3b 55%, #020617 100%);
+}
+
+.wa-base-ai .wa-panel__base-layer {
+  background: radial-gradient(circle at 50% 50%, #ea580c 0%, #7c2d12 55%, #020617 100%);
+}
+
+.wa-base-save .wa-panel__base-layer {
+  background: radial-gradient(circle at 60% 70%, #7e22ce 0%, #581c87 55%, #020617 100%);
+}
+
+/* ==============================================================
+   ANIMATED BACKGROUND CONTAINER
+   ONLY visible when card is OPEN (active)
+   ============================================================== */
+.wa-panel__bg-animation {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When the card is opened: fade in animations */
+.wa-panel--active .wa-panel__bg-animation {
+  opacity: 1;
+}
+
+/* Overlay gradient for contrast and high text readability */
+.wa-panel__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 10, 20, 0.15) 0%,
+    rgba(4, 7, 16, 0.4) 40%,
+    rgba(2, 4, 10, 0.88) 100%
+  );
+  pointer-events: none;
+}
+
+/* Collapsed Step Badge: Visible ONLY when collapsed */
+.wa-panel__collapsed-badge {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.wa-panel__number {
+  font-family: var(--font-display, sans-serif);
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #fbbf24;
+  text-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
+  line-height: 1;
+}
+
+.wa-panel__pill {
+  width: 6px;
+  height: 36px;
+  border-radius: 9999px;
+  background: rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+}
+
+/* Disappear immediately right at that point when cursor hovers / card is active */
+.wa-panel:hover .wa-panel__collapsed-badge,
+.wa-panel--active .wa-panel__collapsed-badge {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.05s ease, visibility 0.05s ease;
+}
+
+/* Reappear smoothly only after panel collapses back */
+.wa-panel:not(.wa-panel--active):not(:hover) .wa-panel__collapsed-badge {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: opacity 0.25s ease 0.2s, visibility 0.25s ease 0.2s;
+}
+
+/* Expanded Content: Visible ONLY when expanded */
+.wa-panel__content {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  padding: clamp(24px, 4vw, 36px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.wa-panel__headline {
+  font-family: var(--font-display, sans-serif);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 16px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9);
+}
+
+.wa-panel__bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wa-panel__bullet-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+  font-weight: 700;
+  color: #f1f5f9;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.wa-panel__bullet-icon {
+  width: 14px;
+  height: 14px;
+  color: #fbbf24;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.7));
+}
+
+/* ==============================================================
+   COMMON REALISTIC BACKGROUND CONTAINER & STATIC PHOTOS
+   ============================================================== */
+.wa-bg-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #030712;
+}
+
+.wa-static-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  filter: brightness(0.7) contrast(1.1);
+  transform: scale(1.04);
+}
+
+/* ==============================================================
+   CARD 1: REALISTIC DESTINATIONS LOOP (Pure photographic crossfade)
+   ============================================================== */
+.wa-photo-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  animation: wa-photo-fade 16s infinite ease-in-out;
+  transform-origin: center center;
+  filter: brightness(0.75) contrast(1.05);
+}
+
+.wa-photo-slide--1 { animation-delay: 0s; }
+.wa-photo-slide--2 { animation-delay: 4s; }
+.wa-photo-slide--3 { animation-delay: 8s; }
+.wa-photo-slide--4 { animation-delay: 12s; }
+
+@keyframes wa-photo-fade {
+  0% {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  6% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  31% {
+    opacity: 0;
+    transform: scale(1.11);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ==============================================================
+   CARD 2: REALISTIC PACKING & CLEAN COUNTDOWN
+   ============================================================== */
+.wa-card2-overlay {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  right: 20px;
+}
+
+.wa-schedule-box {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.wa-schedule-header {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.wa-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.wa-schedule-title {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #fbbf24;
+  text-transform: uppercase;
+}
+
+.wa-digits-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wa-digit-block {
+  flex: 1;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.wa-digit-val {
+  font-family: var(--font-display, sans-serif);
+  font-size: 17px;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.wa-digit-lbl {
+  font-size: 8px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
+.wa-digit-colon {
+  font-weight: 900;
+  color: #fbbf24;
+  font-size: 14px;
+  padding: 0 3px;
+}
+
+.wa-date-range {
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 10px;
+  font-weight: 800;
+  color: #e2e8f0;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* ==============================================================
+   CARD 3: REALISTIC BUDGET PLANNING
+   ============================================================== */
+.wa-card3-overlay {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  right: 20px;
+}
+
+.wa-budget-widget {
+  background: rgba(6, 78, 59, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.wa-budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wa-budget-label {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #a7f3d0;
+  text-transform: uppercase;
+}
+
+.wa-budget-total {
+  font-family: var(--font-display, sans-serif);
+  font-size: 18px;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.wa-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.wa-progress-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wa-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.wa-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.wa-fill {
+  height: 100%;
+  border-radius: inherit;
+}
+
+.wa-fill--1 { width: 40%; background: #10b981; }
+.wa-fill--2 { width: 25%; background: #f59e0b; }
+.wa-fill--3 { width: 20%; background: #38bdf8; }
+.wa-fill--4 { width: 15%; background: #ec4899; }
+
+/* ==============================================================
+   CARD 4: REALISTIC AI ITINERARY ARCHITECT
+   ============================================================== */
+.wa-card4-overlay {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  right: 20px;
+}
+
+.wa-ai-widget {
+  background: rgba(30, 27, 75, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(192, 38, 211, 0.35);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.wa-ai-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.wa-ai-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #f43f5e;
+  box-shadow: 0 0 8px #f43f5e;
+}
+
+.wa-ai-status-title {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #f0abfc;
+  text-transform: uppercase;
+}
+
+.wa-ai-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wa-ai-item {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wa-ai-pill {
+  font-size: 8px;
+  font-weight: 900;
+  background: #a855f7;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.wa-ai-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==============================================================
+   CARD 5: REALISTIC ROADMAP & VERIFIED SAVE
+   ============================================================== */
+.wa-card5-overlay {
+  position: absolute;
+  top: 24px;
+  left: 20px;
+  right: 20px;
+}
+
+.wa-roadmap-widget {
+  background: rgba(24, 24, 27, 0.75);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.wa-route-path-svg {
+  width: 100%;
+  height: 48px;
+  display: block;
+}
+
+.wa-dash-animation {
+  animation: wa-dash-stream 1.8s linear infinite;
+}
+
+@keyframes wa-dash-stream {
+  0% { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.wa-verified-box {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.wa-check-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #10b981;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.wa-verified-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.wa-verified-title {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #a7f3d0;
+  text-transform: uppercase;
+}
+
+.wa-verified-meta {
+  font-size: 8px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+/* ==============================================================
+   RESPONSIVE DESIGN (Mobile & Tablet)
+   ============================================================== */
+@media (max-width: 768px) {
+  .workflow-accordion {
+    flex-direction: column;
+    height: auto;
+    gap: 12px;
+    perspective: none;
+  }
+
+  .wa-panel {
+    min-height: 80px;
+    height: auto;
+    transform: none !important;
+  }
+
+  .wa-panel--active {
+    min-height: 300px;
+  }
+
+  .wa-panel__content {
+    position: relative;
+    padding: 24px;
+    transform: none !important;
+  }
+
+  .wa-panel__collapsed-badge {
+    position: absolute;
+    inset: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0 24px;
+    gap: 14px;
+  }
+
+  .wa-panel__pill {
+    width: 24px;
+    height: 4px;
+  }
+}
