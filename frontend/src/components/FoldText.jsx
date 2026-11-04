@@ -24,7 +24,8 @@ export default function FoldText({
   text = 'Design unfolds', splitBy = 'char', hinge = 'top', foldStyle = 'paper', duration = 0.65,
   stagger = 0.045, staggerFrom = 'start', foldAngle = 92, ease = 'power3.out', perspective = 700,
   creaseShading = 0.55, trigger = 'mount', loopDelay = 1.4, hoverRefold = false, refoldRadius = 140,
-  refoldAngle = 45, fontSize = 80, fontWeight = 800, color = 'currentColor', className = '', style = {}
+  refoldAngle = 45, fontSize = 80, fontWeight = 800, color = 'currentColor', className = '', style = {},
+  onComplete
 }) {
   const rootRef = useRef(null);
   const safeHinge = HINGES[hinge] ? hinge : 'top';
@@ -109,7 +110,11 @@ export default function FoldText({
     let scrollTrigger = null;
     const play = loop => {
       timeline?.kill();
-      timeline = gsap.timeline({ onUpdate: render, ...(loop ? { repeat: -1, repeatDelay: 0.35 } : {}) });
+      timeline = gsap.timeline({ 
+        onUpdate: render, 
+        onComplete: () => onComplete?.(),
+        ...(loop ? { repeat: -1, repeatDelay: 0.35 } : {}) 
+      });
       timeline.fromTo(pieces, { t: 0, f: 0 }, { t: 1, duration: unfoldDuration, ease: 'none', stagger: staggerVars });
       if (loop) timeline.to(pieces, { f: 1, duration: unfoldDuration * 0.75, ease: 'none', stagger: staggerVars }, `+=${safeDelay}`);
       render();
@@ -164,8 +169,7 @@ export default function FoldText({
   }, [segments, hingeConfig, safeStyle, duration, safeStagger, staggerFrom, safeAngle, ease, safeCrease, trigger, safeDelay, hoverRefold, safeRadius, safeRefold, startsFolded]);
 
   const rootStyle = { '--fold-text-font-size': typeof fontSize === 'number' ? `${fontSize}px` : fontSize, '--fold-text-font-weight': fontWeight, '--fold-text-color': color, '--fold-perspective': `${Math.max(120, perspective)}px`, ...style };
-  return <span ref={rootRef} className={`fold-text ${className}`.trim()} style={rootStyle}>
-    <span className="fold-text-sr-only">{text}</span>
-    <span className="fold-text-visual" aria-hidden="true">{segments}</span>
+  return <span ref={rootRef} className={`fold-text ${className}`.trim()} style={rootStyle} aria-label={text}>
+    <span className="fold-text-visual">{segments}</span>
   </span>;
 }

@@ -4,9 +4,7 @@ import api from '../api';
 import { GoogleLogin } from '@react-oauth/google';
 import { 
   MapPin, 
-  Globe, 
   Compass, 
-  Sparkles, 
   User, 
   Lock, 
   Mail, 
@@ -16,63 +14,20 @@ import {
   CheckCircle, 
   ExternalLink,
   Calendar,
-  Users,
   Wallet,
   Check,
-  Bot,
   MessageSquare,
-  Clock,
-  Coins,
   Route,
   Zap,
-  Layers,
-  Shield,
-  Star
+  Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLoading } from '../context/LoadingContext';
 import DriftWall from '../components/DriftWall';
 import ScrollStack, { ScrollStackItem } from '../components/ScrollStack';
 import FoldText from '../components/FoldText';
-
-// AI Capabilities Data
-const AI_CAPABILITIES = [
-  {
-    title: 'Personalized Itineraries',
-    description: 'Custom-tailored roadmaps shaped around your specific travel style—whether you crave high-energy adventure, cultural heritage, quiet nature retreats, or street foodie trails.',
-    icon: Route,
-    badge: 'Tailored To You',
-    accent: 'teal'
-  },
-  {
-    title: 'Destination Recommendations',
-    description: 'Discover hidden gems and famous spots across India. Get intelligent suggestions based on current seasons, ideal weather windows, and your personal interests.',
-    icon: Compass,
-    badge: 'Smart Discovery',
-    accent: 'indigo'
-  },
-  {
-    title: 'Day-wise Activity Suggestions',
-    description: 'Every single day is thoughtfully organized with morning sights, afternoon highlights, and sunset viewpoints—balanced with realistic transit and rest times.',
-    icon: Clock,
-    badge: 'Time-Optimized',
-    accent: 'blue'
-  },
-  {
-    title: 'Smart Budget Allocation',
-    description: 'Intelligent division of your total funds in Indian Rupees (₹) across accommodation, local transit, entry passes, and meals to keep your entire trip financially balanced.',
-    icon: Coins,
-    badge: 'INR (₹) Precision',
-    accent: 'emerald'
-  },
-  {
-    title: 'Travel-Related AI Chatbot',
-    description: 'An on-demand 24/7 AI travel companion ready to answer questions about local transport, packing checklists, regional etiquette, and authentic dining spots.',
-    icon: Bot,
-    badge: '24/7 Live Assistant',
-    accent: 'amber'
-  }
-];
+import AIShowcaseCarousel from '../components/AIShowcaseCarousel';
+import ScenicFoldHeadline from '../components/ScenicFoldHeadline';
 
 function AuthPage({ isLogin = false, isLanding = false }) {
   const [formData, setFormData] = useState({
@@ -356,24 +311,24 @@ function AuthPage({ isLogin = false, isLanding = false }) {
             <div className="grid grid-cols-1 lg:grid-cols-2 items-start">
               
               {/* LEFT HALF: Headlines & Window-Scroll Stacking Cards */}
-              <div className="flex flex-col py-20 md:py-28 px-4 sm:px-6 lg:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] lg:pr-10">
-                {/* Section Header */}
-                <div className="mb-10 text-left">
-                  <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 font-display tracking-tight leading-tight uppercase">
-                    <FoldText text="Your Adventure Starts Here" foldStyle="paper" splitBy="char" hinge="top" trigger="scroll" foldAngle={92} duration={0.65} stagger={0.045} staggerFrom="start" ease="power3.out" perspective={700} creaseShading={0.55} fontSize="inherit" fontWeight={900} />
-                  </h2>
-                </div>
-
+              <div className="flex flex-col pt-10 pb-24 md:pt-12 md:pb-32 px-4 sm:px-8 lg:pl-[max(2rem,calc((100vw-80rem)/2+2rem))] lg:pr-14">
                 {/* React Bits ScrollStack with useWindowScroll (No inner scrollbar, driven by page scroll) */}
                 <ScrollStack
+                  header={
+                    <div className="py-2 text-left">
+                      <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 font-display tracking-tight leading-tight uppercase">
+                        <FoldText text="Your Adventure Starts Here" foldStyle="paper" splitBy="char" hinge="top" trigger="scroll" foldAngle={92} duration={0.65} stagger={0.045} staggerFrom="start" ease="power3.out" perspective={700} creaseShading={0.55} fontSize="inherit" fontWeight={900} />
+                      </h2>
+                    </div>
+                  }
                   useWindowScroll={true}
-                  stackPosition="100px"
+                  stackPosition="225px"
                   itemDistance={100}
                   itemStackDistance={24}
                   itemScale={0.045}
                   baseScale={0.82}
                   dimAmount={0.18}
-                  holdDistance={260}
+                  holdDistance={180}
                   smoothScroll={true}
                 >
                   {/* Card 1: Destination */}
@@ -551,52 +506,16 @@ function AuthPage({ isLogin = false, isLanding = false }) {
           {/* ==========================================
               SECTION 3: AI TRAVEL INTELLIGENCE
               ========================================== */}
-          <section id="ai-intelligence" className="py-24 md:py-32 bg-gray-50/70 border-y border-gray-200/80 px-6 lg:px-12 scroll-mt-20">
-            <div className="max-w-7xl mx-auto">
-              
-              {/* Header */}
-              <div className="text-center max-w-full mx-auto mb-16 md:mb-20">
-                <h2 className="whitespace-nowrap text-[clamp(1.05rem,4.2vw,3rem)] font-black text-gray-900 font-display tracking-tight leading-tight uppercase">
-                  <FoldText text="Let AI Plan the Journey With You." foldStyle="paper" splitBy="char" hinge="top" trigger="scroll" foldAngle={92} duration={0.65} stagger={0.045} staggerFrom="start" ease="power3.out" perspective={700} creaseShading={0.55} fontSize="inherit" fontWeight={900} />
-                </h2>
+          <section id="ai-intelligence" className="bg-gray-50/70 border-y border-gray-200/80 scroll-mt-20 overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 items-stretch min-h-[700px] lg:min-h-[92vh]">
+              {/* LEFT HALF: AI Showcase Slideshow Carousel (Chatbot -> Itinerary -> Budget -> Route) */}
+              <div className="w-full h-full min-h-[640px] lg:min-h-full bg-gray-950">
+                <AIShowcaseCarousel />
               </div>
 
-              {/* 5 AI Features Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {AI_CAPABILITIES.map((capability, idx) => {
-                  const Icon = capability.icon;
-
-                  return (
-                    <motion.div
-                      key={capability.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: idx * 0.08 }}
-                      className="bg-white rounded-3xl p-8 border border-gray-200/80 shadow-sm hover:shadow-xl hover:border-indigo-400/50 transition-all duration-300 flex flex-col justify-between group"
-                    >
-                      <div>
-                        {/* Top Badge & Icon */}
-                        <div className="flex items-center justify-between mb-6">
-                          <div className="w-13 h-13 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm">
-                            <Icon size={24} />
-                          </div>
-                          <span className="text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-gray-100 text-gray-600 border border-gray-200">
-                            {capability.badge}
-                          </span>
-                        </div>
-
-                        {/* Title & Description */}
-                        <h3 className="text-xl font-black text-gray-900 font-display mb-3 group-hover:text-indigo-600 transition-colors">
-                          {capability.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 leading-relaxed font-normal">
-                          {capability.description}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+              {/* RIGHT HALF: FoldText Headline with Scenic Text-Fill */}
+              <div className="flex items-center justify-center lg:justify-start py-14 sm:py-18 lg:py-22 px-6 sm:px-12 lg:pl-16 lg:pr-[max(2rem,calc((100vw-80rem)/2+2rem))]">
+                <ScenicFoldHeadline />
               </div>
             </div>
           </section>
@@ -629,19 +548,19 @@ function AuthPage({ isLogin = false, isLanding = false }) {
           {/* ==========================================
               FOOTER (Compact: Logo Headline on Left, Privacy Policy on Right)
               ========================================== */}
-          <footer className="bg-white text-gray-600 py-4 sm:py-5 px-6 sm:px-10 lg:px-12 border-t border-gray-200 relative">
+          <footer className="bg-[#CC6F00] text-white py-4 sm:py-5 px-6 sm:px-10 lg:px-12 border-t border-white/20 relative">
             <div aria-hidden="true" className="absolute -top-5 left-0 right-0 h-6 bg-[url('/vintage-white-divider.svg')] bg-repeat-x bg-[length:320px_24px]" />
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               {/* Left: Logo + Headline */}
               <Link to="/" className="flex items-center gap-1 group">
                 <img src="/logo.png" alt="Prayanam Logo" className="w-11 h-11 sm:w-12 sm:h-12 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
-                <span className="text-xl sm:text-2xl font-black text-gray-900 font-display uppercase tracking-tight">Prayanam</span>
+                <span className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight">Prayanam</span>
               </Link>
 
               {/* Right: Privacy Policy */}
               <Link 
                 to="/privacy-policy" 
-                className="text-xs sm:text-sm font-semibold text-gray-500 hover:text-gray-900 inline-flex items-center gap-1 transition-colors group"
+                className="text-xs sm:text-sm font-semibold text-white/80 hover:text-white inline-flex items-center gap-1 transition-colors group"
               >
                 <span className="hover:underline">Privacy Policy</span>
                 <ArrowUpRight size={14} className="stroke-[2] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

@@ -153,7 +153,7 @@ export default function PrivacyPolicy() {
               <div className="mt-4 p-4 rounded-2xl bg-white/5 border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <p className="text-sm text-gray-300 font-medium">Have questions or privacy concerns?</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Contact us at <span className="text-yellow-300">support@prayanam.com</span></p>
+                  <p className="text-xs text-gray-400 mt-0.5">Contact us at <span className="text-yellow-300">prayanamsupport@gmail.com</span></p>
                 </div>
                 <Link
                   to="/"

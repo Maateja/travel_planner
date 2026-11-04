@@ -1,0 +1,27 @@
+/* =============================================
+   TEXT-FILL SCENIC — animated travel landscape
+   visible through letter shapes.
+   Beach water, misty mountains, lush greenery
+   flow gently through the text.
+   ============================================= */
+
+.text-fill-scenic {
+  /* Lush tropical lagoon with mountains — beach + water + greenery + mist */
+  background-image: url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=2400&q=85');
+  background-size: 250% 250%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: scenicDrift 18s ease-in-out infinite;
+  will-change: background-position;
+}
+
+@keyframes scenicDrift {
+  0%   { background-position: 0% 35%;   background-size: 250% 250%; }
+  20%  { background-position: 35% 20%;  background-size: 270% 270%; }
+  40%  { background-position: 70% 55%;  background-size: 240% 240%; }
+  60%  { background-position: 100% 35%; background-size: 260% 260%; }
+  80%  { background-position: 50% 70%;  background-size: 245% 245%; }
+  100% { background-position: 0% 35%;   background-size: 250% 250%; }
+}

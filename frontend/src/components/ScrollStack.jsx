@@ -32,6 +32,7 @@ export const ScrollStackItem = ({ children, itemClassName = '', style }) => (
 );
 
 const ScrollStack = ({
+  header,
   children,
   className = '',
   itemDistance = 100,
@@ -50,6 +51,7 @@ const ScrollStack = ({
   onStackComplete
 }) => {
   const rootRef = useRef(null);
+  const headerRef = useRef(null);
   const innerRef = useRef(null);
   const endRef = useRef(null);
   const settingsRef = useRef(null);
@@ -189,6 +191,13 @@ const ScrollStack = ({
         if (done) settings.onStackComplete?.();
       }
 
+      if (headerRef.current) {
+        const exitOffset = Math.min(0, tops[0] - (viewTop + stackTop));
+        write('headerExit', exitOffset < -0.5 ? exitOffset.toFixed(1) : 0, value => {
+          headerRef.current.style.transform = value ? `translateY(${value}px)` : '';
+        });
+      }
+
       if (moved) schedule();
     };
 
@@ -306,6 +315,15 @@ const ScrollStack = ({
       ref={rootRef}
       className={`scroll-stack ${useWindowScroll ? 'scroll-stack--window' : 'scroll-stack--contained'} ${className}`.trim()}
     >
+      {header && (
+        <div
+          ref={headerRef}
+          className="scroll-stack__header sticky top-[92px] sm:top-[100px] z-20 mb-6"
+          style={{ willChange: 'transform' }}
+        >
+          {header}
+        </div>
+      )}
       <div ref={innerRef} className="scroll-stack__inner">
         {items.map((child, index) => {
           const gap = itemDistance - (items.length - index) * itemStackDistance;
